@@ -1,0 +1,105 @@
+# DocPulse local stack: Postgres(+pgvector), an S3-compatible object store, Airflow (LocalExecutor).
+# Everything binds to 127.0.0.1 only; credentials here are for local development.
+
+x-airflow-common: &airflow-common
+  build:
+    context: .
+    dockerfile: docker/airflow/Dockerfile
+  image: docpulse-airflow:local
+  user: "${AIRFLOW_UID:-50000}:0"
+  env_file: .env
+  environment: &airflow-env
+    AIRFLOW__CORE__EXECUTOR: LocalExecutor
+    AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/airflow
+    AIRFLOW__CORE__FERNET_KEY: ${AIRFLOW_FERNET_KEY}
+    AIRFLOW__WEBSERVER__SECRET_KEY: ${AIRFLOW_SECRET_KEY}
+    AIRFLOW__CORE__LOAD_EXAMPLES: "false"
+    AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION: "false"
+    AIRFLOW__CORE__PARALLELISM: "4"
+    AIRFLOW__WEBSERVER__WORKERS: "2"   # keep RAM modest on a laptop
+    PYTHONPATH: /opt/airflow/src
+    S3_ENDPOINT_URL: http://objectstore:8333
+  volumes:
+    - ./dags:/opt/airflow/dags:ro,z
+    - ./src:/opt/airflow/src:ro,z
+    - ./contracts:/opt/airflow/contracts:ro,z
+    - airflow-logs:/opt/airflow/logs
+  depends_on: &airflow-deps
+    postgres:
+      condition: service_healthy
+    objectstore:
+      condition: service_started
+
+services:
+  postgres:
+    image: pgvector/pgvector:pg16
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: docpulse
+    ports:
+      - "127.0.0.1:${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./docker/postgres/init:/docker-entrypoint-initdb.d:ro,z
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d docpulse"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  # S3-compatible object store. MinIO's community edition stopped shipping Docker images
+  # (Oct 2025) and its repo is archived, so local dev uses SeaweedFS. The pipeline only
+  # needs the S3 API: override OBJECTSTORE_IMAGE/command or point S3_ENDPOINT_URL at any
+  # other S3 endpoint (Garage, RustFS, AWS S3) without touching code.
+  objectstore:
+    image: ${OBJECTSTORE_IMAGE:-chrislusf/seaweedfs:latest}
+    command: server -s3 -dir=/data -s3.port=8333 -master.volumeSizeLimitMB=256 -volume.max=30
+    ports:
+      - "127.0.0.1:8333:8333"
+    volumes:
+      - objectstore-data:/data
+
+  airflow-init:
+    <<: *airflow-common
+    entrypoint: /bin/bash
+    command:
+      - -c
+      - |
+        set -euo pipefail
+        airflow db migrate
+        airflow users create --username "$${AIRFLOW_ADMIN_USER}" --password "$${AIRFLOW_ADMIN_PASSWORD}" \
+          --firstname Doc --lastname Pulse --role Admin --email admin@example.com \
+          || echo "admin user already exists"
+        # arXiv allows a single connection: this 1-slot pool serialises every task that calls it.
+        airflow pools set arxiv_api 1 "arXiv API: single connection (terms of use)"
+    depends_on: *airflow-deps
+
+  airflow-webserver:
+    <<: *airflow-common
+    command: webserver
+    ports:
+      - "127.0.0.1:8080:8080"
+    healthcheck:
+      test: ["CMD", "curl", "--fail", "http://localhost:8080/health"]
+      interval: 15s
+      timeout: 10s
+      retries: 10
+      start_period: 30s
+    depends_on:
+      <<: *airflow-deps
+      airflow-init:
+        condition: service_completed_successfully
+
+  airflow-scheduler:
+    <<: *airflow-common
+    command: scheduler
+    depends_on:
+      <<: *airflow-deps
+      airflow-init:
+        condition: service_completed_successfully
+
+volumes:
+  postgres-data:
+  objectstore-data:
+  airflow-logs:

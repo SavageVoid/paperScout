@@ -1,0 +1,5 @@
+# Runtime deps baked into the Airflow image (versions resolved by Airflow's constraints file).
+boto3
+requests
+defusedxml
+pyyaml

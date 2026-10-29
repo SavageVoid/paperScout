@@ -1,0 +1,26 @@
+[project]
+name = "docpulse"
+version = "0.1.0"
+description = "Incremental, self-monitoring research lakehouse over arXiv"
+requires-python = ">=3.11"
+dependencies = ["boto3", "requests", "defusedxml", "pyyaml"]
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src", "tests"]
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 110
+target-version = "py311"
+src = ["src", "tests", "dags"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP"]
+ignore = ["E501"]  # long lines are handled by `ruff format`
