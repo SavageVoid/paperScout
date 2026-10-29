@@ -1,4 +1,4 @@
-# DocPulse
+# PaperScout
 
 An incremental, self-monitoring research lakehouse over arXiv (cs.LG / cs.CL / cs.AI):
 bronze → silver → gold, embedding only the records whose content changed, and proving its own
