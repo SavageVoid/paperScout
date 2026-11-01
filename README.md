@@ -4,7 +4,7 @@ An incremental, self-monitoring research lakehouse over arXiv (cs.LG / cs.CL / c
 bronze -> silver -> gold, embedding only the records whose content changed, and proving its own
 correctness. See `CHECKPOINT.md` for the current state and how to resume.
 
-**Status: Day 1 (bronze) verified end to end. Day 2 (silver) built and unit-tested; awaiting its first run on real data.** Embeddings, dbt and the app are not started.
+**Status: Day 1 (bronze) and Day 2 (silver) verified end to end on real arXiv data.** Embeddings, dbt and the app are not started.
 
 ## Quickstart
 
@@ -98,6 +98,7 @@ silver/_manifest.json                                      files, row counts, ha
 | Run time | ~1 minute (16 requests at >= 3.1 s spacing) |
 | Entries per announcement cycle | ~730-750 (two samples) |
 | Source freshness on 2026-10-29 | newest entry 2026-10-27T17:59:59Z (Tuesday's cutoff). arXiv had announced no announcement on Wed Oct 28 (database migration); the deferred one was due Thu Oct 29 20:00 EDT. Correct behaviour, not a stall |
+| Silver build over 4 bronze partitions | 13,000 entries, 4,271 unique papers (67% overlap duplicates), 0 quarantined, 50 monthly Parquet files; build 13 s, verify 4 s |
 
 ## Known limitations
 
@@ -127,5 +128,6 @@ silver/_manifest.json                                      files, row counts, ha
 | Full stack, DAG in Airflow, real arXiv, S3Store against SeaweedFS | run end to end on the developer's machine (openSUSE Tumbleweed, Docker) |
 | Silver logic: parsing, contract rules, dedupe, merge, quarantine, breaker, verify | 122 unit tests incl. mutation checks (JSON stand-in codec; bronze produced by the real Day 1 code) |
 | Idempotent rerun on real data | two consecutive backfills of 2026-10-28: 17 objects each, `fetched_at` advanced, entries fingerprint `5dc450c86277a6f0` identical |
-| **Not yet verified** | Parquet codec (needs pyarrow: 4 tests), the silver build on REAL arXiv data (`make silver-dry` first), the new DAG tasks in Airflow |
+| Silver on real data, Parquet, DAG | 13,000 entries -> 0 quarantined -> 4,271 papers in 50 month files; rerun wrote nothing; all 5 DAG tasks green (~70 s) |
+| **Not yet verified** | value-level spot-check of real rows; the 4 Parquet unit tests on the dev host; a silver run that sees genuinely new/revised papers |
 | **Not yet done** | ruff, CI, retention, embeddings/gold/app |

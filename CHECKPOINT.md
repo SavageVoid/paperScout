@@ -1,15 +1,20 @@
 # Checkpoint
 
-## Day 2 (silver): built and unit-tested, not yet run on real data
-- Added: YAML data contract, Atom parser, contract validator, quarantine with reason codes + circuit breaker,
-  dedupe (latest version wins), merge into monthly Parquet, manifest, independent `verify_silver`, CLI, DAG tasks.
-- 122 tests pass (4 skipped here because pyarrow was not installable in the build sandbox: they run on the dev
-  machine). Mutation checks cover: breaker, merge-vs-replace, version ordering (scan and merge), quarantine cleanup,
-  derived-column double reporting, skip-unchanged-files.
-- NOT yet verified: Parquet codec, first run on real arXiv entries (contract `known_elements` is written from the
-  documented Atom format and may miss a rare element), new DAG tasks inside Airflow, rebuilt image with pyarrow.
-- First-run procedure: `pip install -r requirements-dev.txt && make test` (expect 0 skipped) -> `make up` -> `make silver-dry`
-  -> `make silver` -> run it again (expect `months_written: []`) -> `make trigger`.
+## Day 2 (silver): verified on real data
+- Built: YAML data contract, Atom parser, contract validator, quarantine with reason codes + circuit breaker, dedupe
+  (latest version wins), merge into monthly Parquet, manifest, independent `verify_silver`, CLI, DAG tasks.
+- 122 unit tests (4 need pyarrow); mutation checks cover the breaker, merge-vs-replace, version ordering (scan and merge),
+  quarantine cleanup, derived-column double reporting and skip-unchanged-files.
+- Real run (2026-11-01, 4 bronze partitions): 13,000 entries -> 13,000 valid, 0 quarantined -> 4,271 unique papers
+  (8,729 overlap duplicates = 67%, expected from the 144 h lookback) -> 50 monthly Parquet files (long tail of old months).
+- Second `make silver`: 0 new / 0 revised / 0 text-changed, `months_written: []` (idempotent on real data).
+  `verify_silver` re-checked all 4,271 rows from the Parquet files (hashes, contract rules, month, uniqueness, text_hash).
+- Full DAG green with all five tasks (ensure_bucket, ingest_to_bronze, verify_bronze, build_silver, verify_silver):
+  ~70 s total (ingest 44 s, silver build 13 s, verify 4 s).
+- Still pending: spot-check of actual column VALUES on real rows (rules passing proves presence/format, not mapping);
+  the 4 Parquet unit tests on the developer's host (the container run already proves Parquet read/write);
+  the first INCREMENTAL silver run with genuinely new/revised papers (arXiv's next announcement was Sun 20:00 EST;
+  the feed only moves after the API refresh, a few hours later).
 
 # Day 1 (bronze ingest)
 
