@@ -64,6 +64,12 @@ class TaskTests(unittest.TestCase):
         with self.assertRaises(BronzeVerificationError):
             run_verify_bronze(summary, store=self.store)
 
+    def test_env_extends_skipped_announcements(self):
+        from datetime import date
+        s = ArxivSettings.from_env({"ARXIV_SKIPPED_ANNOUNCEMENTS": "2026-11-26, 2026-12-25"})
+        self.assertIn(date(2026, 10, 28), s.skipped_announcements)   # known one is kept
+        self.assertIn(date(2026, 12, 25), s.skipped_announcements)
+
     def test_default_lookback_covers_the_longest_normal_visibility_delay(self):
         # Fri 14:00 ET submissions only become public Mon 20:00 ET: 78 h later, plus our daily cadence.
         self.assertGreaterEqual(ArxivSettings().lookback_hours, 78 + 24)

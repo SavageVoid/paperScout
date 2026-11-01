@@ -227,7 +227,7 @@ def build_manifest(
         "n_entries_in_window": n_in_window,
         "n_unique_papers_in_window": len(in_window_ids),
         "n_bytes_total": n_bytes,
-        "freshness": freshness(newest_seen, fetched_at),
+        "freshness": freshness(newest_seen, fetched_at, settings.skipped_announcements),
         "pages": page_rows,
         "fetched_at": _iso(fetched_at),
     }

@@ -11,9 +11,11 @@ import os
 import re
 from collections.abc import Mapping
 from dataclasses import dataclass
+from datetime import date
 from typing import Any
 
 from docpulse import __version__
+from docpulse.ingest.schedule import KNOWN_SKIPPED_ANNOUNCEMENTS
 
 MIN_ARXIV_INTERVAL_S = 3.0  # arXiv Terms of Use: one request / 3 s, single connection
 MAX_PAGE_SIZE = 2000  # arXiv API hard limit per request
@@ -41,6 +43,7 @@ class ArxivSettings:
     backoff_base_s: float = 5.0
     backoff_max_s: float = 120.0
     contact_email: str = DEFAULT_CONTACT
+    skipped_announcements: frozenset[date] = KNOWN_SKIPPED_ANNOUNCEMENTS
 
     def __post_init__(self) -> None:
         if self.min_interval_s < MIN_ARXIV_INTERVAL_S:
@@ -91,6 +94,12 @@ class ArxivSettings:
         put("max_pages", "ARXIV_MAX_PAGES", int)
         put("lookback_hours", "ARXIV_LOOKBACK_HOURS", int)
         put("contact_email", "ARXIV_CONTACT_EMAIL", str)
+        put(
+            "skipped_announcements",
+            "ARXIV_SKIPPED_ANNOUNCEMENTS",  # extra ET dates, comma-separated, added to the known ones
+            lambda v: KNOWN_SKIPPED_ANNOUNCEMENTS
+            | frozenset(date.fromisoformat(d.strip()) for d in v.split(",") if d.strip()),
+        )
         return cls(**kwargs)
 
 
