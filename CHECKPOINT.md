@@ -1,4 +1,17 @@
-# Checkpoint: end of Day 1 (bronze ingest)
+# Checkpoint
+
+## Day 2 (silver): built and unit-tested, not yet run on real data
+- Added: YAML data contract, Atom parser, contract validator, quarantine with reason codes + circuit breaker,
+  dedupe (latest version wins), merge into monthly Parquet, manifest, independent `verify_silver`, CLI, DAG tasks.
+- 122 tests pass (4 skipped here because pyarrow was not installable in the build sandbox: they run on the dev
+  machine). Mutation checks cover: breaker, merge-vs-replace, version ordering (scan and merge), quarantine cleanup,
+  derived-column double reporting, skip-unchanged-files.
+- NOT yet verified: Parquet codec, first run on real arXiv entries (contract `known_elements` is written from the
+  documented Atom format and may miss a rare element), new DAG tasks inside Airflow, rebuilt image with pyarrow.
+- First-run procedure: `pip install -r requirements-dev.txt && make test` (expect 0 skipped) -> `make up` -> `make silver-dry`
+  -> `make silver` -> run it again (expect `months_written: []`) -> `make trigger`.
+
+# Day 1 (bronze ingest)
 
 Date: 2026-10-30. Tag with: `git tag -a checkpoint-day1 -m "Day 1 complete"`
 

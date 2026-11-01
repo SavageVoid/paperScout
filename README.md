@@ -4,27 +4,31 @@ An incremental, self-monitoring research lakehouse over arXiv (cs.LG / cs.CL / c
 bronze -> silver -> gold, embedding only the records whose content changed, and proving its own
 correctness. See `CHECKPOINT.md` for the current state and how to resume.
 
-**Status: Day 1 of 5 (bronze ingest) complete and run end to end.** Silver, embeddings, dbt and the app are not started.
+**Status: Day 1 (bronze) verified end to end. Day 2 (silver) built and unit-tested; awaiting its first run on real data.** Embeddings, dbt and the app are not started.
 
 ## Quickstart
 
 ```bash
 make init            # creates .env with generated secrets; then set ARXIV_CONTACT_EMAIL in it
-make test            # unit tests, no Docker needed
+make test            # unit tests, no Docker needed (pip install -r requirements-dev.txt first)
 make smoke           # real arXiv ingest of one day into ./data/lake, no Docker (needs network)
 make up              # Postgres+pgvector, object store, Airflow -> http://localhost:8080 (admin/admin)
 make trigger         # run the DAG now;  make backfill DATE=2026-10-28 re-runs one day
+make silver-dry      # parse+validate ALL bronze, print quarantine stats, write nothing
+make silver          # build silver (also runs as part of the DAG);  make silver-verify re-checks it
 ```
 
 ## What exists
 
 ```
-dags/arxiv_bronze_ingest.py    thin Airflow wiring: ensure_bucket -> ingest_to_bronze -> verify_bronze
+dags/arxiv_bronze_ingest.py    thin Airflow wiring: ensure_bucket -> ingest_to_bronze -> verify_bronze -> build_silver -> verify_silver
+contracts/silver_papers.yml    the data contract: columns, types, rules, reason codes, policies (single source of truth)
 src/docpulse/config.py         validated settings (refuses a request rate below arXiv's 3 s rule)
 src/docpulse/storage.py        ObjectStore: S3Store (any S3 endpoint) + LocalStore (tests / no Docker)
 src/docpulse/timeutil.py       as_utc(): plain-stdlib UTC (Airflow passes pendulum objects)
 src/docpulse/ingest/           arxiv_client, bronze, schedule (arXiv announcement calendar), tasks, cli
-tests/                         73 tests; fakes for arXiv, S3, clock, and an Airflow-style datetime
+src/docpulse/silver/           contract (load+validate), parse (Atom entry -> row), codecs (Parquet/JSON), build (scan, dedupe, merge, quarantine, verify), tasks, cli
+tests/                         122 tests (4 need pyarrow); fakes for arXiv, S3, clock, an Airflow-style datetime, bronze partitions
 docker-compose.yml, Makefile, .env.example
 ```
 
@@ -35,7 +39,34 @@ bronze/arxiv/ingest_date=2026-10-28/page-00000.xml ...
 bronze/arxiv/ingest_date=2026-10-28/_manifest.json     written last; present = partition complete
 ```
 
-## Design decisions
+## Silver layer (Day 2)
+
+```
+silver/papers/published_month=2026-10/papers.parquet       one row per paper = its latest version
+silver/quarantine/ingest_date=2026-10-29/quarantine.parquet  rejected entries, reason codes, raw XML
+silver/_manifest.json                                      files, row counts, hashes, contract hash
+```
+
+- **Data contract** (`contracts/silver_papers.yml`) drives the validator, the Parquet schema and the reason codes.
+  Reason codes: `bad_id`, `missing_title`, `missing_abstract`, `missing_authors`, `missing_category`, `bad_date`,
+  `bad_type`, `schema_drift` (an Atom element the contract does not know).
+- **Quarantine, never delete**: a bad entry is written with its reasons and raw XML. Derived columns do not
+  double-report (a missing title yields `missing_title`, not also a hash error).
+- **Circuit breaker**: if more than 5% of entries are quarantined, the build fails loudly and writes nothing.
+  Mass `schema_drift` (arXiv adds an element) is caught this way.
+- **Dedupe**: one row per paper; highest `version` wins, then `updated`, then the newest bronze snapshot. Overlapping
+  bronze partitions collapse here. Duplicates are deduped, not quarantined (overlap is expected by design); this
+  deliberately differs from the blueprint's "duplicate id" reason code.
+- **Merged, not replaced**: bronze keeps only recent days, so month files also hold older papers. A stored row is replaced
+  only by a newer (version, updated); an old bronze partition replayed later cannot overwrite a newer version.
+- **Idempotent and incremental == one-shot**: every run re-reads the selected bronze partitions; files are rewritten
+  only if their bytes change. `text_hash` = sha256(title + abstract) lets the embedding step ignore metadata-only changes.
+- **Partitioned by month of `published`**. Consequence: revisions of OLD papers land in old month files, so expect a long
+  tail of small files (a few rows each). Fine at this scale; compaction is future work.
+- **Validation is plain Python driven by the YAML**, not pandera (no pandas dependency in the Airflow image); pandera or
+  dbt tests can be layered on the gold tables.
+
+## Design decisions (bronze)
 
 1. **Revisions are found by sorting on `lastUpdatedDate`.** The API's date filter only covers the
    original submission date, so v2/v3 would be invisible to it.
@@ -94,5 +125,7 @@ bronze/arxiv/ingest_date=2026-10-28/_manifest.json     written last; present = p
 | --- | --- |
 | Pipeline logic, windowing, idempotent reruns, failure safety, rate spacing, retries, freshness calendar | 73 unit tests, plus mutation checks on the key invariants |
 | Full stack, DAG in Airflow, real arXiv, S3Store against SeaweedFS | run end to end on the developer's machine (openSUSE Tumbleweed, Docker) |
+| Silver logic: parsing, contract rules, dedupe, merge, quarantine, breaker, verify | 122 unit tests incl. mutation checks (JSON stand-in codec; bronze produced by the real Day 1 code) |
 | Idempotent rerun on real data | two consecutive backfills of 2026-10-28: 17 objects each, `fetched_at` advanced, entries fingerprint `5dc450c86277a6f0` identical |
-| **Not yet done** | ruff, CI, retention, anything in silver/embedding/gold/app |
+| **Not yet verified** | Parquet codec (needs pyarrow: 4 tests), the silver build on REAL arXiv data (`make silver-dry` first), the new DAG tasks in Airflow |
+| **Not yet done** | ruff, CI, retention, embeddings/gold/app |

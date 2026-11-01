@@ -1,0 +1,69 @@
+# Data contract for silver.papers: one row per arXiv paper (latest version seen).
+# This file is the single source of truth: the validator, the Parquet schema and the
+# quarantine reason codes are all derived from it. Changing it changes `version` below
+# and the build records the contract hash, so a changed contract is always visible.
+contract: silver_papers
+version: 1
+description: >
+  Latest version of each arXiv paper, cleaned and validated, built from bronze Atom entries.
+  Entries that break the contract go to quarantine with reason codes; they are never dropped.
+
+primary_key: arxiv_id
+partition: {column: published, granularity: month}   # silver/papers/published_month=YYYY-MM/
+
+dedupe:
+  key: arxiv_id
+  keep: latest
+  order_by: [version, updated]    # then the newest bronze snapshot wins
+
+policies:
+  # Circuit breaker: if more than this share of entries is quarantined, something structural
+  # changed (schema drift, outage payload). The build fails loudly and writes nothing.
+  max_quarantine_fraction: 0.05
+  min_published: "1991-08-01T00:00:00Z"   # arXiv's first submissions
+  max_future_skew_hours: 48               # `updated` may not be later than the fetch time + this
+
+# Child elements of an Atom <entry> this contract knows about. Anything else is schema drift.
+known_elements:
+  - id
+  - updated
+  - published
+  - title
+  - summary
+  - author
+  - link
+  - category
+  - primary_category
+  - comment
+  - journal_ref
+  - doi
+
+reasons:
+  bad_id: arXiv id missing or not in a known format
+  missing_title: title missing or empty
+  missing_abstract: abstract (summary) missing or empty
+  missing_authors: no author names
+  missing_category: primary category or category list missing
+  bad_date: published/updated missing, unparseable, out of range or updated before published
+  bad_type: a value has the wrong type for its column
+  schema_drift: entry contains elements the contract does not know
+
+columns:
+  - {name: arxiv_id,         type: string,       nullable: false, reason: bad_id,
+     pattern: '(\d{4}\.\d{4,5})|([a-z\-]+(\.[A-Z]{2})?/\d{7})'}
+  - {name: version,          type: int32,        nullable: false, reason: bad_id, min_value: 1}
+  - {name: title,            type: string,       nullable: false, reason: missing_title}
+  - {name: abstract,         type: string,       nullable: false, reason: missing_abstract}
+  - {name: authors,          type: list_string,  nullable: false, reason: missing_authors, min_items: 1}
+  - {name: primary_category, type: string,       nullable: false, reason: missing_category,
+     pattern: '[A-Za-z][A-Za-z\-]*(\.[A-Za-z\-]+)?'}
+  - {name: categories,       type: list_string,  nullable: false, reason: missing_category, min_items: 1}
+  - {name: published,        type: timestamp_utc, nullable: false, reason: bad_date}
+  - {name: updated,          type: timestamp_utc, nullable: false, reason: bad_date}
+  - {name: comment,          type: string,       nullable: true}
+  - {name: journal_ref,      type: string,       nullable: true}
+  - {name: doi,              type: string,       nullable: true}
+  - {name: pdf_url,          type: string,       nullable: true}
+  - {name: abs_url,          type: string,       nullable: false, reason: bad_id, derived_from: [arxiv_id]}
+  - {name: text_hash,        type: string,       nullable: false, reason: bad_type,
+     derived_from: [title, abstract], pattern: '[0-9a-f]{64}'}      # sha256(title + "\n\n" + abstract); the embedding step adds the model version

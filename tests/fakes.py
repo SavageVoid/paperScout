@@ -11,6 +11,7 @@ UTC = timezone.utc
 
 def entry_xml(arxiv_id: str, updated: datetime) -> str:
     ts = updated.strftime("%Y-%m-%dT%H:%M:%SZ")
+    base = arxiv_id.rsplit("v", 1)[0]
     return f"""<entry>
   <id>http://arxiv.org/abs/{arxiv_id}</id>
   <updated>{ts}</updated>
@@ -18,6 +19,9 @@ def entry_xml(arxiv_id: str, updated: datetime) -> str:
   <title>Title {arxiv_id}</title>
   <summary>Abstract of {arxiv_id}</summary>
   <author><name>A. Author</name></author>
+  <link href="http://arxiv.org/abs/{arxiv_id}" rel="alternate" type="text/html"/>
+  <link title="pdf" href="http://arxiv.org/pdf/{arxiv_id}" rel="related" type="application/pdf"/>
+  <arxiv:primary_category xmlns:arxiv="http://arxiv.org/schemas/atom" term="cs.LG" scheme="http://arxiv.org/schemas/atom"/>
   <category term="cs.LG" scheme="http://arxiv.org/schemas/atom"/>
 </entry>"""
 

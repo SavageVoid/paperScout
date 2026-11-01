@@ -1,4 +1,4 @@
-.PHONY: init up down reset logs ps test lint fmt smoke trigger backfill digest
+.PHONY: init up down reset logs ps test lint fmt smoke trigger backfill digest silver-dry silver silver-verify
 
 COMPOSE ?= docker compose
 DATE ?= $(shell python3 -c "from datetime import date,timedelta;print(date.today()-timedelta(days=1))")
@@ -34,6 +34,15 @@ backfill:  ## (re)run bronze for ONE day: make backfill DATE=2026-10-26
 
 digest:  ## fingerprint of one bronze partition: make digest DATE=2026-10-28
 	$(COMPOSE) exec -T airflow-scheduler python - $(DATE) < scripts/bronze_digest.py
+
+silver-dry:  ## parse+validate all bronze, print quarantine stats, write nothing
+	$(COMPOSE) exec -T airflow-scheduler python -m docpulse.silver.cli --dry-run
+
+silver:  ## build silver from all bronze (also runs as part of the DAG)
+	$(COMPOSE) exec -T airflow-scheduler python -m docpulse.silver.cli
+
+silver-verify:  ## re-check silver files against the contract and manifest
+	$(COMPOSE) exec -T airflow-scheduler python -m docpulse.silver.cli --verify-only
 
 test:  ## unit tests (pytest if installed, else unittest)
 	PYTHONPATH=src:tests python3 -m pytest -q 2>/dev/null || PYTHONPATH=src:tests python3 -m unittest discover -s tests

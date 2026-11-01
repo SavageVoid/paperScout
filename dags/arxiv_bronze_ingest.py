@@ -1,9 +1,11 @@
 """
-### arXiv -> bronze
+### arXiv -> bronze -> silver
 
 Daily ingest of new and revised cs.LG / cs.CL / cs.AI papers from the arXiv API into
-object storage, as raw Atom pages plus a manifest. One partition per logical date;
-reruns overwrite that partition (idempotent).
+object storage, as raw Atom pages plus a manifest (bronze). One partition per logical date;
+reruns overwrite that partition (idempotent). Then the silver build parses, validates against
+the YAML data contract, dedupes by paper (latest version wins), quarantines bad entries with
+reason codes, and merges into monthly Parquet files.
 
 Run exactly one at a time: arXiv allows a single connection, so the ingest task uses the
 `arxiv_api` pool (1 slot, created by `airflow-init`) and the DAG allows one active run.
@@ -64,7 +66,25 @@ def arxiv_bronze_ingest():
 
         return run_verify_bronze(summary)
 
-    verify_bronze(ingest_to_bronze(ensure_bucket()))
+    @task
+    def build_silver(_verified_bronze: dict) -> dict:
+        from docpulse.silver.build import SilverError
+        from docpulse.silver.tasks import run_build_silver, summarize
+
+        try:
+            return summarize(run_build_silver())
+        except (SilverError, ValueError, FileNotFoundError) as exc:
+            # Contract violations, missing bronze and a malformed contract are deterministic:
+            # retrying cannot fix them, so fail now with the reason.
+            raise AirflowFailException(str(exc)) from exc
+
+    @task
+    def verify_silver(summary: dict) -> dict:
+        from docpulse.silver.tasks import run_verify_silver
+
+        return run_verify_silver(summary)
+
+    verify_silver(build_silver(verify_bronze(ingest_to_bronze(ensure_bucket()))))
 
 
 arxiv_bronze_ingest()
