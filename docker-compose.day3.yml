@@ -1,0 +1,48 @@
+# Day 3 overlay. Deliberately NOT an edit to your docker-compose.yml:
+# you already made two manual changes there (the SELinux `,z` mount labels and
+# the SeaweedFS volume flags) and a patch zip that overwrites that file would
+# silently undo them. Compose merges these files instead.
+#
+# Use it explicitly, always with your base file first:
+#   docker compose -f docker-compose.yml -f docker-compose.day3.yml run --rm embedder ...
+# (day3.mk does this for you.)
+
+services:
+  embedder:
+    build:
+      context: .
+      dockerfile: docker/embed/Dockerfile
+    image: docpulse-embedder:local
+    # Never starts on `make up`: it is only used through `compose run --rm`.
+    command: ["sleep", "infinity"]
+    restart: "no"
+    env_file:
+      - .env
+    environment:
+      PYTHONPATH: /opt/docpulse/src
+      # The embedder reads silver from the same SeaweedFS the scheduler does, so it
+      # needs the same credentials under the same names. Note S3_ENDPOINT_URL, not
+      # S3_ENDPOINT: that is the name your scheduler actually carries.
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID:-${OBJECTSTORE_ACCESS_KEY:-}}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY:-${OBJECTSTORE_SECRET_KEY:-}}
+      S3_ENDPOINT_URL: ${S3_ENDPOINT_URL:-http://objectstore:8333}
+      S3_REGION: ${S3_REGION:-us-east-1}
+      S3_BUCKET: ${S3_BUCKET:-docpulse}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      # needed for the silver read; without it, `compose run` on a stopped stack
+      # fails with a confusing connection error instead of "objectstore is down"
+      objectstore:
+        condition: service_started
+    volumes:
+      - ./src:/opt/docpulse/src:ro,z
+      - ./contracts:/opt/docpulse/contracts:ro,z
+      - ./scripts:/opt/docpulse/scripts:ro,z
+      - ./tests:/opt/docpulse/tests:ro,z
+      - embed-model-cache:/models/hf
+    # No ports published. It talks to postgres:5432 and objectstore:8333 on the
+    # compose network, exactly like airflow-scheduler does.
+
+volumes:
+  embed-model-cache:
