@@ -18,7 +18,7 @@ from __future__ import annotations
 import json
 from contextlib import contextmanager
 from datetime import datetime, timezone
-from typing import Any, Iterator
+from typing import Iterator
 
 SCHEMA_VERSION = 1
 
@@ -290,7 +290,7 @@ class PgEmbeddingDb:
                 (n,),
             )
             cols = [d[0] for d in cur.description]
-            return [dict(zip(cols, r)) for r in cur.fetchall()]
+            return [dict(zip(cols, r, strict=True)) for r in cur.fetchall()]
 
     # -- stats -----------------------------------------------------------
     def stats(self, model_fp: str) -> dict:
@@ -310,7 +310,7 @@ class PgEmbeddingDb:
             )
             r = cur.fetchone()
             cols = [d[0] for d in cur.description]
-            out = dict(zip(cols, r))
+            out = dict(zip(cols, r, strict=True))
             cur.execute(f"SELECT DISTINCT model_fp FROM {self.table}")
             out["model_fps"] = [x[0] for x in cur.fetchall()]
             cur.execute(

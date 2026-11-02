@@ -112,29 +112,51 @@ def get_store(assumptions: list[Assumption] | None = None):
 # --------------------------------------------------------------------------
 # silver
 # --------------------------------------------------------------------------
+def _readable(store, key: str) -> bool:
+    """True if the object exists and can be read. Cheap: the manifest is a few KB."""
+    try:
+        store.get_bytes(key)
+        return True
+    except Exception:
+        return False
+
+
 def find_silver_manifest_key(store, assumptions: list[Assumption] | None = None) -> str:
+    """Find the silver manifest.
+
+    Importing MANIFEST_KEY is not enough: on a repo where silver has never run (or
+    where the constant was renamed), the import succeeds and the object is absent,
+    which would surface later as a bare KeyError/botocore error. So the imported
+    key is verified against the store before it is trusted.
+    """
     notes = assumptions if assumptions is not None else []
+    imported: str | None = None
     try:  # A4, preferred path
         from docpulse.silver.build import MANIFEST_KEY  # type: ignore
 
-        _key = str(MANIFEST_KEY)
-        try:
-            store.get_bytes(_key)
-        except Exception as exc:
-            notes.append(
-                Assumption("A4 silver.build.MANIFEST_KEY", False, f"{_key} not readable: {exc}")
-            )
-        else:
-            notes.append(Assumption("A4 silver.build.MANIFEST_KEY", True, _key))
-            return _key
+        imported = str(MANIFEST_KEY)
     except Exception as exc:
         notes.append(Assumption("A4 silver.build.MANIFEST_KEY", False, f"import failed: {exc}"))
+
+    if imported and _readable(store, imported):
+        notes.append(Assumption("A4 silver.build.MANIFEST_KEY", True, imported))
+        return imported
+    if imported:
+        notes.append(
+            Assumption(
+                "A4 silver.build.MANIFEST_KEY",
+                False,
+                f"imported as {imported} but that object is not in the store",
+            )
+        )
 
     keys = [k for k in store.list_keys("silver/") if k.endswith("_manifest.json")]
     if not keys:
         raise CompatError(
-            "A4 failed: no silver manifest found. Importable candidate missing and "
-            "no key under silver/ ends with _manifest.json. Run `make silver` first."
+            "A4 failed: no silver manifest found. "
+            + (f"MANIFEST_KEY={imported!r} is not present in the store, and " if imported else "")
+            + "no key under silver/ ends with _manifest.json. Run `make silver` first, "
+            "or tell me where the manifest actually lives."
         )
     keys.sort(key=lambda k: (k.count("/"), len(k)))
     notes.append(Assumption("A4 fallback: scan silver/ for *_manifest.json", True, keys[0]))

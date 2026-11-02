@@ -6,7 +6,7 @@ from __future__ import annotations
 import json
 import unittest
 
-from _day3_fakes import SILVER_MANIFEST_KEY, FakeStore, make_silver_rows, seed_silver_store
+from _day3_fakes import FakeStore, seed_silver_store
 from docpulse.embed import compat
 
 
@@ -84,6 +84,18 @@ class ManifestLookupTests(unittest.TestCase):
             compat.find_silver_manifest_key(FakeStore({}))
         self.assertIn("make silver", str(ctx.exception))
 
+    def test_imported_key_that_is_absent_from_the_store_falls_back_to_a_scan(self):
+        """Regression: on the real repo MANIFEST_KEY *is* importable.
+
+        Trusting the import without checking the object made this raise a bare
+        KeyError later, instead of finding the manifest that is actually there.
+        """
+        key = "silver/other/_manifest.json"
+        store = FakeStore({key: json.dumps({"months": []}).encode()})
+        found = compat.find_silver_manifest_key(store)
+        self.assertEqual(found, key)
+        self.assertIn(found, store.objects)
+
 
 class LoadSilverTests(unittest.TestCase):
     def test_end_to_end_from_a_seeded_store(self):
@@ -108,15 +120,3 @@ class LoadSilverTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
-
-
-class ManifestFallbackRegressionTests(unittest.TestCase):
-    """MANIFEST_KEY *is* importable on the real repo, so the import cannot be trusted
-    on its own: verify the object exists, then fall back to a scan."""
-
-    def test_imported_key_absent_from_store_falls_back_to_a_scan(self):
-        key = "silver/other/_manifest.json"
-        store = FakeStore({key: json.dumps({"months": []}).encode()})
-        found = compat.find_silver_manifest_key(store)
-        self.assertEqual(found, key)
-        self.assertIn(found, store.objects)

@@ -139,7 +139,7 @@ def run(
                     )
                 rows = [
                     (t.paper_id, t.version, t.text_hash, encoder.fingerprint, vec, t.chars)
-                    for t, vec in zip(batch, vectors)
+                    for t, vec in zip(batch, vectors, strict=True)
                 ]
                 db.upsert_batch(rows)  # <- the transaction boundary
                 counters["n_embedded"] += len(rows)

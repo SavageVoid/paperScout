@@ -15,7 +15,7 @@ EMBED_ARGS        ?=
 
 .PHONY: embed-help embed-build embed-preflight embed-preflight-embedder \
         embed-db-init embed-dry embed embed-rebuild embed-verify embed-status \
-        embed-shell embed-test embed-test-db embed-logs
+        embed-shell embed-test embed-test-db embed-logs embed-audit-hash embed-lint
 
 embed-help:
 	@echo "Day 3 targets:"
@@ -30,7 +30,9 @@ embed-help:
 	@echo "  embed-status             row counts, model registry, run ledger"
 	@echo "  embed-shell              bash inside the embedder"
 	@echo "  embed-test               Day 3 unit tests (hash encoder, no torch needed)"
-	@echo "  embed-test-db            Day 3 Postgres tests (needs a disposable db)"
+	@echo "  embed-test-db            Day 3 Postgres tests (uses docpulse_embed_test)"
+	@echo "  embed-audit-hash         what does silver's text_hash actually cover? (B4)"
+	@echo "  embed-lint               ruff over the Day 3 code (needs ruff on the host)"
 	@echo ""
 	@echo "Pass extra CLI flags with EMBED_ARGS, e.g. make embed EMBED_ARGS='--limit 50'"
 
@@ -79,3 +81,14 @@ embed-test-db:
 	# <db>_test and create it; nothing on the host needs to be exported.
 	$(EMBED_RUN) -e DOCPULSE_TEST_DB=1 embedder \
 		python -m pytest -q -p no:cacheprovider /opt/docpulse/tests/test_embed_db.py
+
+# What does silver's text_hash actually cover? Read-only; recovers the recipe by
+# testing plausible constructions against the real rows. Exit 0 either way - a
+# finding is not a pipeline failure.
+embed-audit-hash:
+	$(EMBED_RUN) embedder python /opt/docpulse/scripts/day3_hash_audit.py
+
+# Runs on the host, not in a container: this is a coding aid, not a pipeline step.
+embed-lint:
+	@command -v ruff >/dev/null 2>&1 || { echo "ruff not installed — pip install ruff"; exit 2; }
+	ruff check src/docpulse/embed scripts tests

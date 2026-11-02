@@ -34,17 +34,17 @@ def main() -> int:
     params = conninfo.conninfo_to_dict(settings.dsn)
     target_db = params.get("dbname") or "docpulse_embed"
 
-    # The postgres image names the database after POSTGRES_USER when POSTGRES_DB is
-    # unset, which is how the Airflow metadata database ended up called "docpulse".
-    # Writing pipeline tables in there is what CONFLICTS A5 says not to do.
+    # The postgres image defaults the database name to POSTGRES_USER when
+    # POSTGRES_DB is unset, so this is how the Airflow metadata database got its
+    # name. Writing pipeline tables in there is what A5 in CONFLICTS says not to do.
     airflow_db_candidates = {
         os.environ.get("POSTGRES_DB", "").strip(),
         os.environ.get("POSTGRES_USER", "").strip(),
     } - {""}
     if target_db in airflow_db_candidates and not allow_shared:
         print(f"REFUSING: the target database {target_db!r} is also the one Airflow")
-        print("uses (POSTGRES_DB or POSTGRES_USER). Day 3 keeps its tables out of")
-        print("Airflow's schema, which Airflow migrates on upgrade.")
+        print("uses (POSTGRES_DB or POSTGRES_USER). Day 3 should keep its own tables")
+        print("out of Airflow's schema, which Airflow migrates on upgrade.")
         print("")
         print("Fix: unset DOCPULSE_DB (the default is docpulse_embed), or set")
         print("     DOCPULSE_DB=docpulse_embed in .env, or set a full DOCPULSE_PG_DSN.")

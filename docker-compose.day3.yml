@@ -22,7 +22,8 @@ services:
       PYTHONPATH: /opt/docpulse/src
       # The embedder reads silver from the same SeaweedFS the scheduler does, so it
       # needs the same credentials under the same names. Note S3_ENDPOINT_URL, not
-      # S3_ENDPOINT: that is the name your scheduler actually carries.
+      # S3_ENDPOINT: that is the name the scheduler actually carries.
+      # The nested defaults mean either naming in .env works.
       AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID:-${OBJECTSTORE_ACCESS_KEY:-}}
       AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY:-${OBJECTSTORE_SECRET_KEY:-}}
       S3_ENDPOINT_URL: ${S3_ENDPOINT_URL:-http://objectstore:8333}

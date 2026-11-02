@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import json
 import unittest
 
 from _day3_fakes import FakeDb, FakeStore, FlakyEncoder, loader, make_snapshot, make_silver_rows

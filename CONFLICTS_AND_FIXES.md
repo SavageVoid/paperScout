@@ -12,6 +12,43 @@ Severity: **H** = will bite you, **M** = costs time, **L** = cosmetic.
 
 ---
 
+## 0. Confirmed by your preflight (2026‑11‑02)
+
+Your first `embed-preflight` settled every guess in `compat.py`. Recorded here so
+the next patch does not have to re-derive it:
+
+| Thing | What your repo actually has | Effect |
+|---|---|---|
+| Manifest key | `silver/_manifest.json` (not under `silver/papers/`) | A4 resolved by import, no change needed |
+| Month files | `silver/papers/published_month=YYYY-MM/papers.parquet`, 50 of them | A5/A6 fine; decoded 4,271 rows via pyarrow |
+| Paper id column | **`arxiv_id`** (no `paper_id`, no `id`) | matched the 3rd candidate in `ID_KEYS` |
+| Version column | `version` | matched |
+| Content hash | `text_hash` | matched — incrementality is available |
+| Other columns | `abs_url, abstract, authors, categories, comment, doi, journal_ref, pdf_url, primary_category, published, title, updated` | nothing else needed by Day 3 |
+| Manifest `contract_version` | **absent** (the contract YAML carries `version` + `sha256` instead) | only cosmetic: reports `contract_version=None` |
+| `POSTGRES_USER` | `docpulse` | used for the DSN |
+| `POSTGRES_DB` | **unset** | **this was the important one — see A5** |
+| `S3_ENDPOINT` | unset in the container (defaults must be in code) | store constructed fine, 120 keys, 51 silver |
+| Disk | 8.7 GB free (84% used) | enough for the ~1.1 GB embedder, not roomy |
+| psycopg / pgvector / torch | absent in `airflow-scheduler` | correct — they live in the embedder |
+
+**Two bugs in my own preflight, both fixed in this patch:**
+
+1. It treated `psycopg`/`pgvector` as blockers in the scheduler. That container is
+   *supposed* to lack them. The script now prints `role core` or `role embedder`
+   and only requires what that role should have — so those two BLOCK lines are gone.
+2. It defaulted the Day 3 database to `docpulse`. Combined with `POSTGRES_DB` being
+   unset, that is very likely **Airflow's metadata database** (the postgres image
+   names the db after `POSTGRES_USER`, which is `docpulse`). Default is now
+   `docpulse_embed`, and `embed-db-init` refuses to touch Airflow's database unless
+   given `--allow-shared-db`.
+
+**Net effect: `compat.py` needed no changes at all.** The schema guesses held.
+
+
+
+---
+
 ## A. Conflicts between this patch and your directory
 
 | # | Conflict | Sev | How this patch handles it |
@@ -20,7 +57,7 @@ Severity: **H** = will bite you, **M** = costs time, **L** = cosmetic.
 | A2 | **`docker-compose.yml` now carries two hand edits of yours**: the SELinux `,z` labels on 4 mounts, and the SeaweedFS `-master.volumeSizeLimitMB=256 -volume.max=30` flags. A patch that overwrites that file silently undoes both — and the SeaweedFS one is the difference between a working object store and `InternalError` on every write. | **H** | Compose **overlay** file (`docker-compose.day3.yml`), merged with `-f base -f overlay`. Your file is never written to. |
 | A3 | **Your Makefile is hand-tuned** (`exec -T` after fix3, `set -a; . ./.env` for smoke, `PYTHONPATH=src:tests`). Overwriting it loses that. | **M** | `day3.mk`, used as `make -f day3.mk …` or via one appended line `-include day3.mk` (opt-in, backed up). No target-name collisions — checked against init, test, smoke, up, ps, logs, down, reset, backfill, trigger, digest, silver, silver-dry. |
 | A4 | **Airflow parses every file in `dags/`.** With `DAGS_ARE_PAUSED_AT_CREATION=False` (which your setup must have, since `arxiv_bronze_ingest` started unpaused), a new DAG file would also start running immediately — and it would try to import torch, fail, and add noise to a DagBag you have already fought once. | **M** | The optional DAG lives in `optional/dags/`, which Airflow never reads, and it defines no DAG unless `DOCPULSE_EMBED_IN_AIRFLOW=1`. |
-| A5 | **Your Postgres instance belongs to Airflow.** Airflow owns and migrates its own schema; a `pgvector` table dropped in there is one `airflow db migrate` away from a bad afternoon. Also, `/docker-entrypoint-initdb.d` only runs on a *first* init, so it cannot be used now — your volume already exists. | **M** | New database `docpulse` in the same server, created by an idempotent `make embed-db-init`. Airflow's DB untouched. |
+| A5 | **Your Postgres instance belongs to Airflow — and its database is probably called `docpulse`.** `POSTGRES_DB` is unset in your container, and the postgres image then names the database after `POSTGRES_USER`, which you have set to `docpulse`. So a database literally named `docpulse` is almost certainly Airflow's metadata schema. Airflow owns and migrates it; pipeline tables there are one `airflow db migrate` away from a bad afternoon. `/docker-entrypoint-initdb.d` also only runs on a *first* init, so it can't help now. | **M** | Separate database **`docpulse_embed`**, created by an idempotent `make embed-db-init`. If the target ever equals `POSTGRES_DB`/`POSTGRES_USER`, the script refuses and explains, unless you pass `--allow-shared-db`. |
 | A6 | **`POSTGRES_PORT` in your `.env` is the host-side mapping** (you were told to set 5433 if 5432 was taken). Reusing it inside a container sends you to a closed port and looks like "Postgres is down". | **M** | `dsn_from_env()` deliberately ignores `POSTGRES_PORT`; it uses `DOCPULSE_PG_PORT`, default 5432. Documented in the config docstring. |
 | A7 | **Your `.env` is gitignored and holds your real values**; a patch that ships `.env` changes either does nothing or clobbers secrets. `docpulse-fix2` needed a manual `sed` for `ARXIV_LOOKBACK_HOURS` for exactly this reason. | **L** | Every Day 3 key is optional with a safe default. They are listed in `README_DAY3.md` §8 for you to add only if you want to change one. |
 | A8 | **Test-suite collisions.** A `conftest.py` or fixture file would be overwritten by, or overwrite, whatever Day 1/2 already has, and could silently change how your 122 tests are collected. | **M** | No `conftest.py`. Test doubles live in `tests/_day3_fakes.py` (not collected by pytest or `unittest discover`, because of the leading underscore). Tests are `unittest` classes, so both of your `make test` paths run them. |
@@ -89,21 +126,46 @@ partition was empty. Day 3's manifest is written **last and only on success**, w
 is the pattern bronze should adopt: make the manifest the commit record, and treat
 objects not listed in a valid manifest as unpublished.
 
-### B4. `text_hash` semantics are unverified — **M**
+### B4. `text_hash` semantics — **RESOLVED** (measured, 2026-11-02)
 
-Incrementality is only as correct as that hash. If Day 2's `text_hash` were
-computed over, say, id + title only, then abstract-only revisions would never
-re-embed, and nothing would tell you. Cheap test (no change to your code):
+`make -f day3.mk embed-audit-hash` over all 4,271 rows:
+
+    recipe   sha256('\n\n'.join([title.strip(), abstract.strip()]))
+    covers title  True      covers categories  False
+
+That is byte-identical to Day 3's `compose_text()`, so `text_hash` hashes exactly
+the string that gets embedded. Categories are excluded and correctly so: they do
+not feed `title_abstract_v1`. Incremental embedding is sound; no change needed in
+`silver/build.py`. The four "matching recipes" differ only in whitespace handling.
+
+Incrementality is only as correct as that hash. Day 3 trusts the stored value
+(`text_hash_computed: 0` in the build plan). If Day 2's `text_hash` covers only
+the abstract, a title-only edit keeps the same hash, Day 3 sees "unchanged", and
+the stored vector silently keeps describing the old title — no error, no warning.
+
+Day 3 now ships an audit that answers this **from the data**, rather than from
+reading `build.py`: it tests ~7,000 plausible constructions (field subsets ×
+separators × whitespace normalisation × digest) against real rows and reports the
+one that reproduces `text_hash`.
 
 ```bash
-docker compose exec -T airflow-scheduler python - <<'EOF'
-import hashlib
-# ... same loading preamble as B1 ...
-match = sum(1 for r in rows[:500]
-            if r.get("text_hash") == hashlib.sha256(
-                (r.get("title","") + "\n\n" + r.get("abstract","")).strip().encode()).hexdigest())
-print(f"{match}/{min(500,len(rows))} rows match sha256(title + '\\n\\n' + abstract)")
-EOF
+make -f day3.mk embed-audit-hash          # read-only, exits 0 either way
+python scripts/day3_hash_audit.py --json --sample 50   # machine-readable
+```
+
+Read the output as three lines:
+
+| Output | Meaning |
+|---|---|
+| `covers title  True` | B4 is closed — title edits do trigger re-embedding |
+| `covers title  False` | **B4 confirmed.** Widen the hash in `silver/build.py` (title + abstract), then re-run Day 3's verify |
+| `verdict  not_identified` | the recipe is not a simple field join; send me the hashing function |
+
+An ambiguous result (`matching recipes > 1`) is expected when the corpus has no
+leading/trailing whitespace to distinguish the variants; they agree on your data,
+so the `covers title` answer is still trustworthy.
+
+
 ```
 
 100% means silver uses the same composition I do (nice, then hashes are portable).

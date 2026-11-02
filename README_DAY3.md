@@ -70,7 +70,7 @@ source .venv/bin/activate
 PYTHONPATH=src:tests python3 -m pytest -q tests -k embed
 ```
 
-**Checkpoint:** `68 passed, 6 skipped`. The 6 skipped are the Postgres tests;
+**Checkpoint:** `79 passed, 6 skipped`. The 6 skipped are the Postgres tests;
 they run in the container later. If any of the 68 fail on your machine I need the
 first failure — that is almost certainly a name I guessed wrong from the
 transcript.
@@ -124,6 +124,10 @@ before continuing.
 
 ### Step 3 — preflight inside the embedder (torch + psycopg live here)
 
+The script prints `role core` or `role embedder` and only demands the packages that
+role is supposed to have, so a missing `psycopg` in the scheduler is a NOTE, not a
+failure.
+
 ```bash
 make -f day3.mk embed-preflight-embedder
 ```
@@ -138,8 +142,14 @@ point), and `postgres reachable`.
 make -f day3.mk embed-db-init
 ```
 
-**Checkpoint:** `database 'docpulse' created` (or `already exists`) and
+**Checkpoint:** `database 'docpulse_embed' created` (or `already exists`) and
 `schema ready: {'table': 'paper_embeddings', 'dim': 384, ...}`.
+
+Why `docpulse_embed` and not `docpulse`: with `POSTGRES_DB` unset, the postgres
+image names the database after `POSTGRES_USER`, which on your stack is `docpulse`
+— so `docpulse` is almost certainly **Airflow's own metadata database**. Day 3
+refuses to land there and says so (`REFUSING: the target database … is also the one
+Airflow uses`) unless you pass `--allow-shared-db`.
 
 ### Step 5 — dry run: the plan, nothing written
 
@@ -226,7 +236,7 @@ git tag -a checkpoint-day3 -m "Day 3 complete: embeddings verified, incremental 
 
 Verified in my sandbox, on this code, today:
 
-- 68 unit tests: encoder contract and fingerprints, planning (new / changed /
+- 79 unit tests: encoder contract and fingerprints, configuration defaults, planning (new / changed /
   unchanged / model mismatch / missing text / duplicate ids / truncation),
   crash-safety (a mid-run failure keeps committed batches and the rerun resumes),
   model-change guard, rebuild, orphan pruning, all 8 verification checks, and the
@@ -268,6 +278,7 @@ data lives in volumes and `-v` deletes them. To drop only Day 3's tables:
 ```bash
 docker compose -f docker-compose.yml -f docker-compose.day3.yml run --rm --entrypoint psql embedder \
   "$DOCPULSE_PG_DSN" -c 'drop table if exists paper_embeddings, embedding_runs, embedding_models'
+# (on the default settings that is the docpulse_embed database, not Airflow's)
 ```
 
 ---
@@ -281,6 +292,7 @@ docker compose -f docker-compose.yml -f docker-compose.day3.yml run --rm --entry
 | `LockBusy` | A previous run is still holding the advisory lock | `make embed-status`; if nothing is running, the connection died and Postgres released it — just re-run |
 | `preflight` says `BLOCK docpulse.silver.build missing` | Wrong `PYTHONPATH` / wrong container | Run it via `make embed-preflight` (it uses the scheduler, where `src` is mounted) |
 | `psycopg is not installed here` | `embed-db-init` run on the host | Run it via `make -f day3.mk embed-db-init` |
+| `REFUSING: the target database … is also the one Airflow uses` | `DOCPULSE_DB` points at Airflow's metadata DB | Unset it (default `docpulse_embed`) or set a full `DOCPULSE_PG_DSN` |
 | `permission denied` on `/opt/docpulse/src` | SELinux | The overlay already carries `,z`; confirm with `ls -Z` |
 | `Could not connect ... port 5432` | You set `DOCPULSE_PG_PORT` from `POSTGRES_PORT` | Inside the container the port is **always** 5432; `dsn_from_env` deliberately ignores `POSTGRES_PORT` |
 | Model download fails | No egress, or HF blocked | Pre-download on the host into the volume, or set `HF_HUB_OFFLINE=1` after one successful fetch |
@@ -296,7 +308,7 @@ None are required. Defaults are sane. Add only what you want to change:
 
 ```bash
 # database
-DOCPULSE_DB=docpulse
+DOCPULSE_DB=docpulse_embed
 # DOCPULSE_PG_DSN=postgresql://user:pass@postgres:5432/docpulse   # overrides everything
 # DOCPULSE_PG_HOST=postgres
 # DOCPULSE_PG_PORT=5432

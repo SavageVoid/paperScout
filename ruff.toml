@@ -1,0 +1,9 @@
+# Day 3 lint config. Deliberately narrow: catch the class of bug that actually bit
+# us this week (unused imports, undefined names, shadowed builtins, `is` vs `==`)
+# without a reformat that would bury the diff. A project with no existing style
+# should not get one retro-fitted by a linter.
+line-length = 110
+target-version = "py311"
+
+[lint]
+select = ["E4", "E7", "E9", "F", "B"]

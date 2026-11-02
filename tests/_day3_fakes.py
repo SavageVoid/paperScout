@@ -129,7 +129,7 @@ class FakeDb:
     def stats(self, model_fp: str) -> dict:
         norms = []
         dims = set()
-        for version, text_hash, fp, vec, chars in self.rows.values():
+        for _version, _text_hash, _fp, vec, _chars in self.rows.values():
             norms.append(math.sqrt(sum(float(x) ** 2 for x in vec)))
             dims.add(len(vec))
         expected = self.models.get(model_fp, {}).get("dim")
