@@ -101,33 +101,89 @@ def create_app(
         since: str | None = Query(None, max_length=32, description="YYYY-MM-DD"),
         until: str | None = Query(None, max_length=32, description="YYYY-MM-DD"),
         include_abstract: bool = Query(False),
+        mode: str = Query("vector", description="vector | keyword"),
+        sort: str = Query("relevance", description="relevance | updated"),
+        min_score: float | None = Query(
+            None, ge=-1.0, le=1.0, description="cosine floor, vector mode only"
+        ),
     ) -> dict[str, Any]:
+        # Imported here so this patch touches one region of the file instead of
+        # also editing an import block it has never seen.
+        from docpulse.search.modes import (
+            MODES,
+            SORTS,
+            apply_min_score,
+            candidate_pool,
+            order_by_updated,
+        )
+
         text = normalise_query(q)
         if not text:
             raise HTTPException(status_code=422, detail="query is empty after trimming")
 
-        started = time.perf_counter()
-        try:
-            vector = query_encoder.encode(text)
-        except Exception as exc:  # pragma: no cover - model failure
-            raise HTTPException(status_code=503, detail=f"encoder failed: {exc}") from exc
-
-        clamped = settings.clamp_limit(limit)
-        try:
-            rows = db.search(
-                vector=vector,
-                model_fp=encoder.fingerprint,
-                limit=clamped,
-                category=category,
-                since=since,
-                until=until,
+        if mode not in MODES:
+            raise HTTPException(
+                status_code=422, detail=f"mode must be one of {', '.join(MODES)}"
             )
-        except Exception as exc:
-            raise HTTPException(status_code=503, detail=f"database unavailable: {exc}") from exc
+        if sort not in SORTS:
+            raise HTTPException(
+                status_code=422, detail=f"sort must be one of {', '.join(SORTS)}"
+            )
+
+        started = time.perf_counter()
+        clamped = settings.clamp_limit(limit)
+        keyword_info: dict[str, Any] | None = None
+
+        if mode == "keyword":
+            # No encoder call: this arm is full text, and asking the model for a
+            # vector only to ignore it would add latency and a failure mode.
+            try:
+                rows, keyword_info = db.search_keyword(
+                    query=text,
+                    limit=clamped,
+                    category=category,
+                    since=since,
+                    until=until,
+                    sort=sort,
+                )
+            except Exception as exc:
+                raise HTTPException(
+                    status_code=503, detail=f"database unavailable: {exc}"
+                ) from exc
+        else:
+            try:
+                vector = query_encoder.encode(text)
+            except Exception as exc:  # pragma: no cover - model failure
+                raise HTTPException(
+                    status_code=503, detail=f"encoder failed: {exc}"
+                ) from exc
+            # sort=updated re-orders the most similar rows; it does not scan the
+            # corpus by date, which would ignore the query entirely.
+            pool = clamped if sort == "relevance" else candidate_pool(clamped)
+            try:
+                rows = db.search(
+                    vector=vector,
+                    model_fp=encoder.fingerprint,
+                    limit=pool,
+                    category=category,
+                    since=since,
+                    until=until,
+                )
+            except Exception as exc:
+                raise HTTPException(
+                    status_code=503, detail=f"database unavailable: {exc}"
+                ) from exc
+            if sort == "updated":
+                rows = order_by_updated(rows, clamped)
+            # A cosine floor means nothing to a ts_rank_cd score, so it is applied
+            # to the vector arm only.
+            rows = apply_min_score(rows, min_score)[:clamped]
 
         results = rows_to_results(rows, include_abstract=include_abstract)
         return {
             "query": text,
+            "mode": mode,
+            "sort": sort,
             "model": {
                 "id": settings.model_id,
                 "revision": settings.model_revision,
@@ -137,6 +193,8 @@ def create_app(
             "limit": clamped,
             "limit_requested": limit,
             "filters": {"category": category, "since": since, "until": until},
+            "min_score": min_score,
+            "keyword": keyword_info,
             "n_returned": len(results),
             "took_ms": round((time.perf_counter() - started) * 1000, 1),
             "results": results,

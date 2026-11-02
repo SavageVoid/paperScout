@@ -20,6 +20,8 @@ from __future__ import annotations
 import threading
 import time
 from typing import Any, Iterable, Sequence
+from docpulse.search.keyword import search_keyword as run_keyword_search
+from docpulse.search.modes import keyword_report, merge_keyword_rows
 
 SEARCH_SQL = """
 SELECT e.{idcol} AS arxiv_id,
@@ -51,6 +53,17 @@ SELECT m.arxiv_id, m.title, m.abstract, m.categories, m.published, m.updated,
 """
 
 COUNT_SQL = "SELECT count(*) FROM {meta}"
+
+KEYWORD_META_SQL = """
+SELECT m.arxiv_id, m.title, m.abstract, m.categories, m.published, m.updated,
+       m.version
+  FROM {meta} m
+ WHERE m.arxiv_id = ANY(%(ids)s::text[])
+   AND (%(category)s::text IS NULL
+        OR %(category)s::text = ANY(string_to_array(coalesce(m.categories, ''), ' ')))
+   AND (%(since)s::timestamptz IS NULL OR m.published >= %(since)s::timestamptz)
+   AND (%(until)s::timestamptz IS NULL OR m.published <  %(until)s::timestamptz)
+"""
 
 
 def vector_literal(values: Sequence[float]) -> str:
@@ -132,6 +145,48 @@ class PgSearchDb:
         for row in rows:
             row["score"] = float(row["score"])
         return rows
+
+    def search_keyword(
+        self,
+        *,
+        query: str,
+        limit: int,
+        category: str | None = None,
+        since: str | None = None,
+        until: str | None = None,
+        sort: str = "relevance",
+    ) -> tuple[list[dict[str, Any]], dict[str, Any]]:
+        """Full-text search over paper_meta.fts; returns rows plus diagnostics.
+
+        Rows come back shaped like search()'s, so the API formats both modes with
+        one function. The diagnostics say whether the AND arm answered or the OR
+        fallback did: an exact match must not look like a near match.
+
+        The keyword engine filters on category; the metadata lookup repeats that
+        and adds the date range, which is where a filtered hit is dropped.
+        """
+        with self._lock, self._cursor() as cur:
+            found = run_keyword_search(
+                cur,
+                query,
+                limit=int(limit),
+                category=(category or None) or None,
+                sort=sort,
+            )
+            if not found["rows"]:
+                return [], keyword_report(found, [])
+            sql = KEYWORD_META_SQL.format(meta=self.meta_table)
+            params = {
+                "ids": [hit["arxiv_id"] for hit in found["rows"]],
+                "category": (category or None) or None,
+                "since": (since or None) or None,
+                "until": (until or None) or None,
+            }
+            cur.execute(sql, params)
+            cols = [d[0] for d in cur.description]
+            meta = {r[0]: dict(zip(cols, r, strict=True)) for r in cur.fetchall()}
+        rows = merge_keyword_rows(found["rows"], meta)
+        return rows, keyword_report(found, rows)
 
     def paper(self, arxiv_id: str) -> dict[str, Any] | None:
         sql = PAPER_SQL.format(table=self.table, meta=self.meta_table, idcol=self.id_column)

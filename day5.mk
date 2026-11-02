@@ -23,3 +23,21 @@ fts-probe:
 
 fts-explain:
 	$(DAY5_RUN) searchapi python /opt/docpulse/scripts/day5_fts_probe.py --explain
+
+# Step 2: is the keyword arm's ranking good enough to justify fusion?
+rank-probe:
+	$(DAY5_RUN) searchapi python /opt/docpulse/scripts/day5_rank_probe.py $(PROBE_ARGS)
+
+rank-explain:
+	$(DAY5_RUN) searchapi python /opt/docpulse/scripts/day5_rank_probe.py --explain
+
+# Step 3a: the stored weighted tsvector + GIN (idempotent, additive only)
+fts-migrate:
+	$(DAY5_RUN) searchapi python /opt/docpulse/scripts/day5_add_fts.py
+
+fts-migrate-dry:
+	$(DAY5_RUN) searchapi python /opt/docpulse/scripts/day5_add_fts.py --dry-run
+
+# Step 3b: run the real keyword engine over the corpus (read-only)
+keyword-probe:
+	$(DAY5_RUN) searchapi python /opt/docpulse/scripts/day5_keyword_probe.py $(PROBE_ARGS)
