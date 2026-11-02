@@ -63,6 +63,7 @@ def cmd_verify(args: argparse.Namespace) -> int:
             settings=settings,
             silver_loader=_load_silver,
             expect_complete=not args.allow_incomplete,
+            hash_drift_is_error=not args.ignore_hash_drift,
         )
     _print(result)
     return 0 if result["ok"] else 1
@@ -111,6 +112,11 @@ def main(argv: list[str] | None = None) -> int:
         "--allow-incomplete",
         action="store_true",
         help="treat missing vectors as a warning (use while incrementally filling)",
+    )
+    p_verify.add_argument(
+        "--ignore-hash-drift",
+        action="store_true",
+        help="downgrade V9 (silver's text_hash vs our embedding text) to a warning",
     )
     p_verify.set_defaults(func=cmd_verify)
 

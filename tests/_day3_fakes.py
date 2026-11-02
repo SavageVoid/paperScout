@@ -171,16 +171,24 @@ class FlakyEncoder:
         return self.inner.encode(texts)
 
 
+def _silver_hash(title: str, abstract: str) -> str:
+    """What real silver stores: sha256 of the text that gets embedded (B4)."""
+    from docpulse.embed.plan import compose_text, computed_text_hash
+
+    return computed_text_hash(compose_text(title, abstract))
+
+
 def make_silver_rows(n: int = 5, *, prefix: str = "2601.0000") -> list[dict]:
     rows = []
     for i in range(n):
+        title, abstract = f"Paper {i}", f"Abstract body for paper {i}."
         rows.append(
             {
                 "paper_id": f"{prefix}{i}",
                 "version": 1,
-                "text_hash": f"hash-{i}",
-                "title": f"Paper {i}",
-                "abstract": f"Abstract body for paper {i}.",
+                "text_hash": _silver_hash(title, abstract),
+                "title": title,
+                "abstract": abstract,
             }
         )
     return rows

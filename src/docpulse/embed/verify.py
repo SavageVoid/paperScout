@@ -11,11 +11,14 @@ compares. The checks are the ones that would actually catch a bad run:
   V6  no vectors for papers that no longer exist in silver (orphans)
   V7  stored text_hash matches silver's (no silent staleness)
   V8  an identical text always yields an identical vector (determinism spot check)
+  V9  silver's text_hash is the hash of the very text we embed (recipe tripwire)
 """
 
 from __future__ import annotations
 
 import math
+
+from .plan import compose_text, computed_text_hash
 
 DEFAULT_NORM_TOL = 1e-3
 
@@ -33,9 +36,11 @@ def run(
     silver_loader,
     expect_complete: bool = True,
     norm_tol: float = DEFAULT_NORM_TOL,
+    hash_drift_is_error: bool = True,
 ) -> dict:
     silver = silver_loader(store)
     silver_hashes = {r["paper_id"]: r.get("text_hash") for r in silver.rows if r.get("paper_id")}
+    silver_rows = {r["paper_id"]: r for r in silver.rows if r.get("paper_id")}
     # de-dupe defensively: highest version wins, same rule as build
     errors: list[str] = []
     warnings: list[str] = []
@@ -106,6 +111,30 @@ def run(
             except Exception as exc:  # pragma: no cover - depends on model
                 warnings.append(f"V8 determinism check skipped: {type(exc).__name__}: {exc}")
 
+    # V9 -----------------------------------------------------------------
+    # Measured on this corpus (CONFLICTS B4): silver's text_hash is exactly
+    # sha256(compose_text(title, abstract)). This turns that finding into a
+    # tripwire - if silver's recipe changes, or someone bumps the embedding
+    # template without bumping the hash, V9 fires instead of the two sides
+    # silently disagreeing about what a vector describes.
+    hash_mismatch: list[str] = []
+    for pid, row in silver_rows.items():
+        stored = silver_hashes.get(pid)
+        if not stored:
+            continue  # silver had no hash; build computed one and said so
+        text = compose_text(row.get("title") or "", row.get("abstract") or "")
+        if computed_text_hash(text) != stored:
+            hash_mismatch.append(pid)
+    if hash_mismatch:
+        msg = (
+            f"V9 {len(hash_mismatch)} rows: silver's text_hash is not "
+            f"sha256(compose_text(title, abstract)) (e.g. {sorted(hash_mismatch)[:5]}). "
+            "Either silver changed its hash recipe or the embedding template changed. "
+            "Run `make -f day3.mk embed-audit-hash` to see what silver actually hashes; "
+            "pass --ignore-hash-drift if the divergence is intended."
+        )
+        (errors if hash_drift_is_error else warnings).append(msg)
+
     return {
         "ok": not errors,
         "errors": errors,
@@ -115,6 +144,8 @@ def run(
         "n_missing": len(missing),
         "n_orphans": len(orphans),
         "n_stale_text_hash": len(drift),
+        "n_hash_mismatch": len(hash_mismatch),
+        "hash_recipe": "sha256(compose_text(title, abstract))",
         "model": encoder.info(),
         "silver": silver.summary(),
         "stats": {k: v for k, v in stats.items() if k != "model_fps"},

@@ -6,7 +6,7 @@ from __future__ import annotations
 import json
 import unittest
 
-from _day3_fakes import FakeStore, seed_silver_store
+from _day3_fakes import FakeStore, make_silver_rows, seed_silver_store
 from docpulse.embed import compat
 
 
@@ -106,7 +106,7 @@ class LoadSilverTests(unittest.TestCase):
         self.assertEqual(snap.manifest["n_papers_total"], 5)
         ids = sorted(r["paper_id"] for r in snap.rows)
         self.assertEqual(ids, [f"2601.0000{i}" for i in range(5)])
-        self.assertEqual(snap.rows[0]["text_hash"], "hash-0")
+        self.assertEqual(snap.rows[0]["text_hash"], make_silver_rows()[0]["text_hash"])
 
     def test_without_text_hash_the_column_is_none(self):
         store = seed_silver_store(with_text_hash=False)

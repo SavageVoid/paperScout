@@ -110,6 +110,41 @@ class VerifyTests(unittest.TestCase):
         self.assertFalse(out["ok"])
         self.assertTrue(any("V3" in e for e in out["errors"]))
 
+    # -- V9: silver's hash must be the hash of the text we embed -------------
+    def test_hash_recipe_matches_by_default(self):
+        db, enc = seeded_db()
+        out = self._verify(db, enc)
+        self.assertEqual(out["n_hash_mismatch"], 0)
+        self.assertIn("compose_text", out["hash_recipe"])
+
+    def test_silver_recipe_change_is_caught(self):
+        # silver re-hashes with a different recipe (say it starts including the
+        # categories) but the stored hashes are untouched: every vector now
+        # describes text its hash no longer points at.
+        rows = make_silver_rows()
+        rows[2]["text_hash"] = "f" * 64
+        db, enc = seeded_db(rows)
+        out = self._verify(db, enc, rows=rows)
+        self.assertEqual(out["n_hash_mismatch"], 1)
+        self.assertFalse(out["ok"])
+        self.assertTrue(any("V9" in e for e in out["errors"]))
+
+    def test_hash_drift_can_be_downgraded(self):
+        rows = make_silver_rows()
+        rows[2]["text_hash"] = "f" * 64
+        db, enc = seeded_db(rows)
+        out = self._verify(db, enc, rows=rows, hash_drift_is_error=False)
+        self.assertEqual(out["n_hash_mismatch"], 1)
+        self.assertTrue(any("V9" in w for w in out["warnings"]))
+        self.assertFalse(any("V9" in e for e in out["errors"]))
+
+    def test_rows_without_a_silver_hash_are_skipped(self):
+        rows = make_silver_rows()
+        rows[1]["text_hash"] = None
+        db, enc = seeded_db(rows)
+        out = self._verify(db, enc, rows=rows)
+        self.assertEqual(out["n_hash_mismatch"], 0)
+
     def test_empty_table_reports_zero_not_a_crash(self):
         db, enc = FakeDb(), HashEncoder(dim=16)
         db.ensure_model(enc.info())
