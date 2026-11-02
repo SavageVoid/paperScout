@@ -1,0 +1,25 @@
+# Day 3 embedding dependencies (installed into docker/embed/Dockerfile).
+# torch is pinned in the Dockerfile because it comes from the PyTorch CPU index.
+# Ranges, not floating: a silent major bump of sentence-transformers can change
+# tokenisation and therefore your vectors.
+
+sentence-transformers>=6.2,<7
+transformers>=5,<6
+huggingface-hub>=2,<3
+tokenizers>=0.22
+safetensors>=0.4
+
+# database
+psycopg[binary]>=3.3,<4
+pgvector>=0.5,<0.6
+
+# reuse the same lake/silver code as the rest of the project
+pyarrow>=14,<22
+boto3>=1.34
+botocore>=1.34
+pyyaml>=6
+defusedxml>=0.7
+requests>=2.31
+
+# tests (the embedder runs the Day 3 unit tests too)
+pytest>=8

@@ -1,0 +1,6 @@
+# Day 4: search API. These are installed into the *embedder* image, because the
+# API must encode queries with the same pinned model Day 3 embedded with.
+fastapi==0.162.0
+uvicorn[standard]==0.54.0
+# only needed by the tests (TestClient); harmless in the image
+httpx==0.28.1

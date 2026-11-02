@@ -1,0 +1,51 @@
+# Day 4 overlay: the search API.
+#
+# Reuses docpulse-embedder:local — the image already carries torch, the pinned
+# model and the model cache volume. A separate API image would cost another
+# ~3 GB for no isolation benefit: both processes read the same two tables.
+#
+# Always with the base file and the Day 3 overlay first:
+#   docker compose -f docker-compose.yml -f docker-compose.day3.yml \
+#                  -f docker-compose.day4.yml up -d searchapi
+# (day4.mk does this for you.)
+
+services:
+  searchapi:
+    image: docpulse-embedder:local
+    build:
+      context: .
+      dockerfile: docker/embed/Dockerfile
+    command: ["python", "-m", "docpulse.search"]
+    # unlike the embedder, this one is a server: keep it up
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      PYTHONPATH: /opt/docpulse/src
+      SEARCH_PORT: "8080"
+      SEARCH_HOST: "0.0.0.0"
+      # Same credentials and names as the scheduler and the embedder. The API only
+      # needs these for `search-meta`; the query path is pure Postgres.
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID:-${OBJECTSTORE_ACCESS_KEY:-}}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY:-${OBJECTSTORE_SECRET_KEY:-}}
+      S3_ENDPOINT_URL: ${S3_ENDPOINT_URL:-http://objectstore:8333}
+      S3_REGION: ${S3_REGION:-us-east-1}
+      S3_BUCKET: ${S3_BUCKET:-docpulse}
+    ports:
+      # host:container. 8090, not 8080: Airflow's webserver already publishes 8080 on
+      # this stack, and binding there fails with "port is already allocated".
+      - "${SEARCH_PUBLISH:-8090}:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - ./src:/opt/docpulse/src:ro,z
+      - ./contracts:/opt/docpulse/contracts:ro,z
+      - ./scripts:/opt/docpulse/scripts:ro,z
+      - ./tests:/opt/docpulse/tests:ro,z
+      - embed-model-cache:/models/hf
+
+volumes:
+  # declared in the Day 3 overlay too; repeating the definition keeps this file
+  # usable together with it, and compose merges identical entries
+  embed-model-cache:
