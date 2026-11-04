@@ -131,6 +131,19 @@ def main(argv: list[str] | None = None) -> int:
                 cur.execute("SET enable_seqscan = on")
                 print("")
 
+    # A relaxed row with full coverage contradicts a strict miss: the same lexemes
+    # are present, so the AND should have found it. This is how double stemming was
+    # caught once; it must never fire again.
+    contradictions = [
+        r["query"] for r in report
+        if r["mode"] == "relaxed" and any(h["coverage"] == h["total"] for h in r["rows"])
+    ]
+    if contradictions:
+        print(f"CONTRADICTION    {contradictions}")
+        print("  relaxed rows claim full coverage while strict found nothing - the AND")
+        print("  and the coverage check disagree, so one of them is building queries wrong")
+        print("")
+
     strict = [r for r in report if r["mode"] == "strict"]
     relaxed = [r for r in report if r["mode"] == "relaxed"]
     empty = [r for r in report if r["mode"] == "empty"]
@@ -149,7 +162,8 @@ def main(argv: list[str] | None = None) -> int:
               f"{[r['query'] for r in relaxed]}")
     if empty:
         print(f"no match at all      {len(empty)}: {[r['query'] for r in empty]}")
-        print("  (expected for author names: paper_meta has no authors column)")
+        print("  (expected: this probe reads title+abstract only; authors live in"
+              " paper_meta.authors and are found with /search?author=)")
     times = {m: [r["ms"] for r in report if r["mode"] == m] for m in ("strict", "relaxed")}
     for mode, values in times.items():
         if values:
