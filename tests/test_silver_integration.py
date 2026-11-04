@@ -6,8 +6,8 @@ from pathlib import Path
 
 from docpulse.config import ArxivSettings
 from docpulse.ingest.tasks import run_bronze_ingest
-from docpulse.silver.build import build_silver, paper_fields, papers_key, verify_silver
-from docpulse.silver.codecs import Field, JsonCodec, ParquetCodec
+from docpulse.silver.build import build_silver, paper_fields, verify_silver
+from docpulse.silver.codecs import JsonCodec, ParquetCodec
 from docpulse.silver.contract import load_contract
 from docpulse.silver.tasks import default_contract_path, run_build_silver, run_verify_silver, summarize
 from docpulse.storage import LocalStore

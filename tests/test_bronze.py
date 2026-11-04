@@ -2,7 +2,7 @@ import hashlib
 import json
 import tempfile
 import unittest
-from datetime import date, datetime, timedelta, timezone
+from datetime import date, datetime, timezone
 
 from docpulse.config import ArxivSettings
 from docpulse.ingest.bronze import (

@@ -71,7 +71,7 @@ class RateLimiterTests(unittest.TestCase):
             limiter.wait()
             starts.append(clock.now)
             clock.now += 0.2  # the "request" itself takes 0.2s
-        gaps = [b - a for a, b in zip(starts, starts[1:])]
+        gaps = [b - a for a, b in zip(starts, starts[1:], strict=False)]
         self.assertTrue(all(g >= 3.1 - 1e-9 for g in gaps), gaps)
 
     def test_first_call_does_not_sleep(self):

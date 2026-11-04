@@ -1,5 +1,5 @@
 import unittest
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timezone
 
 from docpulse.ingest.schedule import freshness, latest_announced_cutoff
 

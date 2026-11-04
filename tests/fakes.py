@@ -11,7 +11,6 @@ UTC = timezone.utc
 
 def entry_xml(arxiv_id: str, updated: datetime) -> str:
     ts = updated.strftime("%Y-%m-%dT%H:%M:%SZ")
-    base = arxiv_id.rsplit("v", 1)[0]
     return f"""<entry>
   <id>http://arxiv.org/abs/{arxiv_id}</id>
   <updated>{ts}</updated>
