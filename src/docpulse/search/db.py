@@ -31,7 +31,8 @@ SELECT e.{idcol} AS arxiv_id,
        m.abstract,
        m.categories,
        m.published,
-       m.updated
+       m.updated,
+       m.authors
   FROM {table} e
   LEFT JOIN {meta} m ON m.arxiv_id = e.{idcol}
  WHERE e.embedding IS NOT NULL
@@ -46,6 +47,7 @@ SELECT e.{idcol} AS arxiv_id,
 
 PAPER_SQL = """
 SELECT m.arxiv_id, m.title, m.abstract, m.categories, m.published, m.updated,
+       m.authors,
        e.version, e.model_fp, (e.embedding IS NOT NULL) AS has_vector
   FROM {meta} m
   LEFT JOIN {table} e ON e.{idcol} = m.arxiv_id
@@ -56,7 +58,7 @@ COUNT_SQL = "SELECT count(*) FROM {meta}"
 
 KEYWORD_META_SQL = """
 SELECT m.arxiv_id, m.title, m.abstract, m.categories, m.published, m.updated,
-       m.version
+       m.version, m.authors
   FROM {meta} m
  WHERE m.arxiv_id = ANY(%(ids)s::text[])
    AND (%(category)s::text IS NULL
@@ -291,6 +293,7 @@ def rows_to_results(rows: Iterable[dict[str, Any]], *, include_abstract: bool = 
             "published": _iso(row.get("published")),
             "updated": _iso(row.get("updated")),
             "version": row.get("version"),
+            "authors": row.get("authors") or [],
             "score": round(float(row["score"]), 6),
         }
         if include_abstract:
