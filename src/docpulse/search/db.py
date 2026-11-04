@@ -188,6 +188,35 @@ class PgSearchDb:
         rows = merge_keyword_rows(found["rows"], meta)
         return rows, keyword_report(found, rows)
 
+    def search_author(
+        self,
+        *,
+        author: str,
+        limit: int,
+        category: str | None = None,
+        since: str | None = None,
+        until: str | None = None,
+    ) -> dict[str, Any]:
+        """Author search, exact name first and partial only as a fallback.
+
+        Returns the engine's dict unchanged. Unlike search_keyword there is no
+        second metadata pass: the author SQL already selects title and authors
+        from paper_meta, so there is nothing to merge and no filtered hit to drop.
+
+        The engine import is local so this patch touches one region of this file.
+        """
+        from docpulse.search.authors import search_author as run_author_search
+
+        with self._lock, self._cursor() as cur:
+            return run_author_search(
+                cur,
+                author,
+                limit=int(limit),
+                category=(category or None) or None,
+                since=(since or None) or None,
+                until=(until or None) or None,
+            )
+
     def paper(self, arxiv_id: str) -> dict[str, Any] | None:
         sql = PAPER_SQL.format(table=self.table, meta=self.meta_table, idcol=self.id_column)
         with self._lock, self._cursor() as cur:

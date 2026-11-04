@@ -95,7 +95,8 @@ def create_app(
 
     @app.get("/search")
     def search(
-        q: str = Query(..., min_length=MIN_QUERY_CHARS, max_length=MAX_QUERY_CHARS),
+        q: str | None = Query(None, min_length=MIN_QUERY_CHARS, max_length=MAX_QUERY_CHARS),
+        author: str | None = Query(None, max_length=200, description="author name"),
         limit: int | None = Query(None, ge=1),
         category: str | None = Query(None, max_length=64),
         since: str | None = Query(None, max_length=32, description="YYYY-MM-DD"),
@@ -117,9 +118,14 @@ def create_app(
             order_by_updated,
         )
 
-        text = normalise_query(q)
-        if not text:
-            raise HTTPException(status_code=422, detail="query is empty after trimming")
+        text = normalise_query(q or "")
+        wanted_author = " ".join((author or "").split())
+        if not text and not wanted_author:
+            # Neither was given, so there is nothing to search. A blank q with a
+            # real author is fine: the author arm never looks at q.
+            raise HTTPException(
+                status_code=422, detail="q or author is required (q cannot be blank)"
+            )
 
         if mode not in MODES:
             raise HTTPException(
@@ -134,7 +140,31 @@ def create_app(
         clamped = settings.clamp_limit(limit)
         keyword_info: dict[str, Any] | None = None
 
-        if mode == "keyword":
+        author_info: dict[str, Any] | None = None
+
+        if wanted_author:
+            # A separate arm: "this person is in the author list" is a stronger
+            # claim than "these words appear", and the two must not be blended.
+            try:
+                found = db.search_author(
+                    author=wanted_author,
+                    limit=clamped,
+                    category=category,
+                    since=since,
+                    until=until,
+                )
+            except Exception as exc:
+                raise HTTPException(
+                    status_code=503, detail=f"database unavailable: {exc}"
+                ) from exc
+            rows = found["rows"]
+            mode = "author"
+            author_info = {
+                "mode": found["mode"],
+                "key": found["key"],
+                "total_matches": found["total_matches"],
+            }
+        elif mode == "keyword":
             # No encoder call: this arm is full text, and asking the model for a
             # vector only to ignore it would add latency and a failure mode.
             try:
@@ -195,6 +225,7 @@ def create_app(
             "filters": {"category": category, "since": since, "until": until},
             "min_score": min_score,
             "keyword": keyword_info,
+            "author": author_info,
             "n_returned": len(results),
             "took_ms": round((time.perf_counter() - started) * 1000, 1),
             "results": results,
