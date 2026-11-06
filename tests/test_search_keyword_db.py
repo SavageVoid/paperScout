@@ -1,24 +1,47 @@
-"""Day 5: SearchDB.search_keyword, exercised against a scripted cursor.
+"""Day 5: PgSearchDb.search_keyword, exercised against a scripted cursor.
 
 The unit tests for the engine live in test_search_keyword.py and the policy tests in
 test_search_modes.py. What is untested by either is the seam between them: that the
 method runs the engine, then fetches metadata for exactly those ids, then merges in
 the engine's order. That seam is what this file covers, without a database.
 
-It binds the method to a duck-typed stand-in rather than constructing SearchDB, so
-it does not depend on the constructor or on psycopg being reachable.
+It binds the method to a duck-typed stand-in rather than constructing PgSearchDb, so
+it does not depend on the constructor or on a Postgres server being reachable.
+
+Two failures hid in this file for days, both silent:
+
+  * the class was renamed (SearchDB -> PgSearchDb) and the `except Exception` turned
+    the resulting ImportError into a permanent skip;
+  * COLUMNS went stale when `authors` was added to KEYWORD_META_SQL, so the fake
+    served 7-column rows to an 8-column query.
+
+The guard is now narrow enough to say why it skipped, and
+test_the_fake_matches_the_real_metadata_columns fails the moment the two drift again.
 """
 
 from __future__ import annotations
 
+import re
 import unittest
 
 try:
-    from docpulse.search.db import SearchDB
-except Exception:  # pragma: no cover - import needs the search extras
+    from docpulse.search.db import PgSearchDb as SearchDB
+except ImportError as exc:  # pragma: no cover - import needs the search extras
     SearchDB = None
+    _IMPORT_ERROR: object = exc
+else:
+    _IMPORT_ERROR = None
 
-COLUMNS = ["arxiv_id", "title", "abstract", "categories", "published", "updated", "version"]
+COLUMNS = [
+    "arxiv_id",
+    "title",
+    "abstract",
+    "categories",
+    "published",
+    "updated",
+    "version",
+    "authors",
+]
 
 
 class FakeCursor:
@@ -81,7 +104,10 @@ class FakeDB:
         return self._cursor_obj
 
 
-@unittest.skipIf(SearchDB is None, "docpulse.search.db not importable here")
+@unittest.skipIf(
+    SearchDB is None,
+    f"cannot import PgSearchDb from docpulse.search.db: {_IMPORT_ERROR!r}",
+)
 class SearchKeywordMethodTests(unittest.TestCase):
     def call(self, cursor, **kwargs):
         bind = SearchDB.search_keyword.__get__(FakeDB(cursor), FakeDB)
@@ -97,9 +123,24 @@ class SearchKeywordMethodTests(unittest.TestCase):
 
     def meta(self):
         return [
-            ("2401.1", "First", "abs a", "cs.CL", "2026-10-01", "2026-10-28", 1),
-            ("2401.2", "Second", "abs b", "cs.LG", "2026-10-02", "2026-10-27", 2),
+            ("2401.1", "First", "abs a", "cs.CL", "2026-10-01", "2026-10-28", 1,
+             ["Ada Lovelace", "Alan Turing"]),
+            ("2401.2", "Second", "abs b", "cs.LG", "2026-10-02", "2026-10-27", 2,
+             ["Grace Hopper"]),
         ]
+
+    def test_the_fake_matches_the_real_metadata_columns(self):
+        """The contract: the SELECT list and the fake's description cannot drift."""
+        from docpulse.search.db import KEYWORD_META_SQL
+
+        body = KEYWORD_META_SQL.format(meta="paper_meta")
+        select_list = body.split("SELECT", 1)[1].split("FROM", 1)[0]
+        selected = [
+            re.sub(r"\s+", "", part).split(".")[-1]
+            for part in select_list.split(",")
+            if part.strip()
+        ]
+        self.assertEqual(selected, COLUMNS)
 
     def test_engine_order_is_preserved_through_the_merge(self):
         cur = FakeCursor(["bert", "mask"], self.strict_hits(), self.meta())
@@ -121,8 +162,13 @@ class SearchKeywordMethodTests(unittest.TestCase):
         cur = FakeCursor(["bert"], self.strict_hits(), self.meta())
         rows, _ = self.call(cur, query="bert", limit=10)
         for key in ("arxiv_id", "title", "abstract", "categories", "published",
-                    "updated", "version", "score"):
+                    "updated", "version", "authors", "score"):
             self.assertIn(key, rows[0])
+
+    def test_authors_survive_the_merge(self):
+        cur = FakeCursor(["bert"], self.strict_hits(), self.meta())
+        rows, _ = self.call(cur, query="bert", limit=10)
+        self.assertEqual(rows[0]["authors"], ["Ada Lovelace", "Alan Turing"])
 
     def test_metadata_is_fetched_once_for_the_returned_ids(self):
         cur = FakeCursor(["bert"], self.strict_hits(), self.meta())

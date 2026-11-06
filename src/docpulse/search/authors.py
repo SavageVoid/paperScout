@@ -27,6 +27,8 @@ papers matched rather than pretending the hits are one person's.
 from __future__ import annotations
 
 import re
+import unicodedata
+from html import unescape
 
 MIN_KEY = 2
 
@@ -64,6 +66,36 @@ SELECT m.arxiv_id, m.title, m.authors,
 COUNT_SQL = """
 SELECT count(*) FROM paper_meta m WHERE m.authors_ci @> ARRAY[%(key)s]::text[]
 """
+
+
+# arXiv ships names as XML text, which carries three kinds of debris:
+#
+#   "Herv{é} Panetto"     single-character braces, a rendering artefact
+#   "M{\"u}ller"          the older LaTeX accent spelling
+#   "&amp; colleagues"    HTML entities, from XML escaping
+#
+# Left alone, the first can never match someone typing "Hervé". This lives in the
+# module the search engine already owns, so the loader and the query side cannot
+# drift apart -- the Day 6 backfill kept its own copy, and the reload immediately
+# showed what that costs.
+_SINGLE_CHAR_BRACES_RE = re.compile(r"\{([^{}\\\\])\}")
+_LATEX_ACCENT_RE = re.compile(r"\{\\([`'^\"~=.])\s*\{?([A-Za-z])\}?\}")
+_ACCENT_MAP = {"'": "\u0301", "`": "\u0300", "^": "\u0302", '"': "\u0308",
+               "~": "\u0303", "=": "\u0304", ".": "\u0307"}
+
+
+def _compose(letter: str, combining: str) -> str:
+    return unicodedata.normalize("NFC", letter + combining) if combining else letter
+
+
+def clean_name(name: str | None) -> str:
+    """Fold arXiv's markup debris out of a name and collapse its whitespace."""
+    text = unescape(name or "")
+    text = _LATEX_ACCENT_RE.sub(
+        lambda m: _compose(m.group(2), _ACCENT_MAP.get(m.group(1), "")), text)
+    text = _SINGLE_CHAR_BRACES_RE.sub(r"\1", text)
+    text = text.replace("{", "").replace("}", "").replace("\\", "")
+    return " ".join(text.split())
 
 
 def normalise(author: str | None) -> str:

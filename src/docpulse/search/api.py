@@ -77,7 +77,7 @@ def create_app(
         return INDEX_HTML
 
     @app.get("/health")
-    def health() -> JSONResponse:
+    def health():
         report = db.health(encoder.fingerprint)
         report["model"] = encoder.info() if hasattr(encoder, "info") else {}
         report["query_cache"] = query_encoder.stats()

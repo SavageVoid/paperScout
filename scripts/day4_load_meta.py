@@ -29,17 +29,27 @@ CREATE TABLE IF NOT EXISTS {meta} (
     updated          timestamptz,
     version          integer,
     text_hash        text,
+    authors          text[],
+    authors_ci       text[],
+    authors_tsv      tsvector,
     loaded_at        timestamptz NOT NULL DEFAULT now()
 );
 CREATE INDEX IF NOT EXISTS {meta}_published_idx  ON {meta} (published);
 CREATE INDEX IF NOT EXISTS {meta}_categories_idx ON {meta} (categories);
+CREATE INDEX IF NOT EXISTS {meta}_authors_idx     ON {meta} USING GIN (authors);
+CREATE INDEX IF NOT EXISTS {meta}_authors_ci_idx  ON {meta} USING GIN (authors_ci);
+CREATE INDEX IF NOT EXISTS {meta}_authors_tsv_idx ON {meta} USING GIN (authors_tsv);
 """
 
 UPSERT = """
 INSERT INTO {meta} (arxiv_id, title, abstract, categories, primary_category,
-                    published, updated, version, text_hash)
+                    published, updated, version, text_hash,
+                    authors, authors_ci, authors_tsv)
 VALUES (%(arxiv_id)s, %(title)s, %(abstract)s, %(categories)s, %(primary_category)s,
-        %(published)s::timestamptz, %(updated)s::timestamptz, %(version)s, %(text_hash)s)
+        %(published)s::timestamptz, %(updated)s::timestamptz, %(version)s, %(text_hash)s,
+        %(authors)s::text[], %(authors_ci)s::text[],
+        to_tsvector('simple',
+                    array_to_string(coalesce(%(authors)s::text[], ARRAY[]::text[]), ' ')))
 ON CONFLICT (arxiv_id) DO UPDATE SET
        title = excluded.title,
        abstract = excluded.abstract,
@@ -49,6 +59,9 @@ ON CONFLICT (arxiv_id) DO UPDATE SET
        updated = excluded.updated,
        version = excluded.version,
        text_hash = excluded.text_hash,
+       authors = excluded.authors,
+       authors_ci = excluded.authors_ci,
+       authors_tsv = excluded.authors_tsv,
        loaded_at = now()
 """
 
@@ -110,8 +123,53 @@ def _iso(value: Any) -> str | None:
     return iso() if callable(iso) else str(value)
 
 
+def _authors(raw: dict) -> list[str]:
+    """Silver's author list, whatever pyarrow hands us.
+
+    pyarrow gives a list, but a round trip through parquet or json can hand back
+    its repr -- the same trap ``normalise_categories`` describes. Order is
+    preserved and duplicates are kept: they exist in the source, and inventing a
+    cleaner corpus than arXiv ships would be a quiet lie.
+
+    ``authors_ci`` is derived from these names with ``normalise``, the function the
+    exact-match query uses, so a row written here matches a query built there.
+    """
+    from docpulse.search.authors import clean_name
+
+    value = raw.get("authors")
+    if value is None:
+        return []
+    if isinstance(value, (list, tuple, set)):
+        items = [str(v) for v in value]
+    else:
+        text = str(value).strip()
+        if not text:
+            return []
+        if text.startswith("[") and text.endswith("]"):
+            try:
+                parsed = ast.literal_eval(text)
+            except (ValueError, SyntaxError):
+                parsed = None
+            items = ([str(v) for v in parsed]
+                     if isinstance(parsed, (list, tuple))
+                     else text.split(","))
+        elif "," in text:
+            items = text.split(",")
+        else:
+            items = [text]
+
+    names: list[str] = []
+    for item in items:
+        name = clean_name(item.strip().strip("'\""))
+        if name:
+            names.append(name)
+    return names
+
+
 def build_rows(raw_rows: list[dict], *, id_keys, version_keys, hash_keys) -> list[dict]:
     """Map silver's columns onto the ``paper_meta`` shape. Pure: easy to test."""
+    from docpulse.search.authors import normalise
+
     out: dict[str, dict] = {}
     for raw in raw_rows:
         paper_id = _pick(raw, id_keys)
@@ -121,6 +179,7 @@ def build_rows(raw_rows: list[dict], *, id_keys, version_keys, hash_keys) -> lis
             version = int(_pick(raw, version_keys) or 1)
         except (TypeError, ValueError):
             version = 1
+        authors = _authors(raw)
         row = {
             "arxiv_id": str(paper_id).strip(),
             "title": _text(raw.get("title")),
@@ -131,6 +190,8 @@ def build_rows(raw_rows: list[dict], *, id_keys, version_keys, hash_keys) -> lis
             "updated": _iso(raw.get("updated")),
             "version": version,
             "text_hash": _text(_pick(raw, hash_keys)),
+            "authors": authors,
+            "authors_ci": [normalise(a) for a in authors],
         }
         # highest version wins, same rule as the embedding build
         current = out.get(row["arxiv_id"])
