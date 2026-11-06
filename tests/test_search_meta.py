@@ -5,22 +5,17 @@ Written after a real bug: pyarrow hands ``categories`` over as a Python list, an
 splits on spaces, so ``?category=cs.CL`` matched nothing — silently, with an empty
 result list rather than an error.
 
-The script is loaded by path because it is a CLI, not an importable module; the
-functions it exposes are pure, which is the point.
+The mapping lives in ``docpulse.silver.load`` as of Day 7: the DAG calls it, the
+CLI script calls it, and these tests call it. When it lived in the script, the two
+copies drifted -- the script folded arXiv's markup out of author names and the
+promoted path did not -- so there is now one implementation and one target for tests.
 """
 
 from __future__ import annotations
 
-import importlib.util
-import pathlib
 import unittest
 
-SCRIPT = pathlib.Path(__file__).resolve().parents[1] / "scripts" / "day4_load_meta.py"
-
-_spec = importlib.util.spec_from_file_location("day4_load_meta_under_test", SCRIPT)
-assert _spec and _spec.loader
-meta = importlib.util.module_from_spec(_spec)
-_spec.loader.exec_module(meta)
+from docpulse.silver import load as meta
 
 ID_KEYS = ("arxiv_id", "paper_id", "id")
 VERSION_KEYS = ("version",)
