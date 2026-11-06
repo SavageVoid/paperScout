@@ -70,3 +70,49 @@ def run_verify_silver(
     if summary is not None and summary.get("n_papers_total") != verified["n_papers_total"]:
         raise RuntimeError(f"verified silver differs from build summary: {verified} vs {summary}")
     return verified
+
+
+def run_load_meta(
+    *,
+    store: ObjectStore | None = None,
+    connect: Any = None,
+    batch: int | None = None,
+    meta_table: str | None = None,
+) -> dict[str, Any]:
+    """Silver -> paper_meta. Upsert only: pruning stays a human decision."""
+    from docpulse.silver.load import (
+        DEFAULT_BATCH,
+        META_TABLE,
+        build_rows_from_silver,
+        load_meta,
+        read_silver_rows,
+    )
+
+    raw_rows, facts = read_silver_rows(store=store or _store())
+    rows = build_rows_from_silver(raw_rows)
+    report = load_meta(
+        rows,
+        connect=connect,
+        batch=batch or DEFAULT_BATCH,
+        meta_table=meta_table or META_TABLE,
+    )
+    return report | facts | {"n_unique_papers": len(rows)}
+
+
+def run_check_meta(
+    summary: dict[str, Any] | None = None,
+    *,
+    connect: Any = None,
+    meta_table: str | None = None,
+) -> dict[str, Any]:
+    """The gate: raises MetaIntegrityError when author search would start lying."""
+    from docpulse.silver.load import META_TABLE, check_meta
+
+    report = check_meta(connect=connect, meta_table=meta_table or META_TABLE)
+    written = (summary or {}).get("n_unique_papers")
+    if written is not None and written != report["papers"]:
+        raise RuntimeError(
+            f"paper_meta holds {report['papers']} papers but the load wrote {written}; "
+            "the load and the table disagree"
+        )
+    return report

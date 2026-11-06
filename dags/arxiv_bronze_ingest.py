@@ -84,7 +84,44 @@ def arxiv_bronze_ingest():
 
         return run_verify_silver(summary)
 
-    verify_silver(build_silver(verify_bronze(ingest_to_bronze(ensure_bucket()))))
+    @task
+    def load_meta(_verified_silver: dict) -> dict:
+        from docpulse.silver.load import MetaIntegrityError
+        from docpulse.silver.tasks import run_load_meta
+
+        try:
+            return run_load_meta()
+        except MetaIntegrityError as exc:
+            # a corpus that cannot be searched is a deterministic failure, not a retry
+            raise AirflowFailException(str(exc)) from exc
+
+    @task
+    def check_meta(summary: dict) -> dict:
+        from docpulse.silver.load import MetaIntegrityError
+        from docpulse.silver.tasks import run_check_meta
+
+        try:
+            return run_check_meta(summary)
+        except MetaIntegrityError as exc:
+            raise AirflowFailException(str(exc)) from exc
+
+    @task(execution_timeout=timedelta(minutes=60))
+    def embed_papers(_checked_meta: dict) -> dict:
+        from docpulse.embed.tasks import run_build_embeddings
+
+        return run_build_embeddings()
+
+    @task
+    def verify_embeddings(summary: dict) -> dict:
+        from docpulse.embed.tasks import run_verify_embeddings
+
+        return run_verify_embeddings()
+
+    verified_silver = verify_silver(build_silver(verify_bronze(ingest_to_bronze(ensure_bucket()))))
+    verified_embeddings = verify_embeddings(
+        embed_papers(check_meta(load_meta(verified_silver)))
+    )
+    return verified_embeddings
 
 
 arxiv_bronze_ingest()
