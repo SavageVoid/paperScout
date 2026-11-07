@@ -32,6 +32,7 @@ x-airflow-common: &airflow-common
 
 services:
   postgres:
+    restart: unless-stopped
     image: pgvector/pgvector:pg16
     environment:
       POSTGRES_USER: ${POSTGRES_USER}
@@ -53,6 +54,7 @@ services:
   # needs the S3 API: override OBJECTSTORE_IMAGE/command or point S3_ENDPOINT_URL at any
   # other S3 endpoint (Garage, RustFS, AWS S3) without touching code.
   objectstore:
+    restart: unless-stopped
     image: ${OBJECTSTORE_IMAGE:-chrislusf/seaweedfs:latest}
     command: server -s3 -dir=/data -s3.port=8333 -master.volumeSizeLimitMB=256 -volume.max=30
     ports:
@@ -76,6 +78,7 @@ services:
     depends_on: *airflow-deps
 
   airflow-webserver:
+    restart: unless-stopped
     <<: *airflow-common
     command: webserver
     ports:
@@ -92,6 +95,7 @@ services:
         condition: service_completed_successfully
 
   airflow-scheduler:
+    restart: unless-stopped
     <<: *airflow-common
     command: scheduler
     depends_on:

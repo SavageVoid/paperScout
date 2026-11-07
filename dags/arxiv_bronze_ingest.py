@@ -105,23 +105,13 @@ def arxiv_bronze_ingest():
         except MetaIntegrityError as exc:
             raise AirflowFailException(str(exc)) from exc
 
-    @task(execution_timeout=timedelta(minutes=60))
-    def embed_papers(_checked_meta: dict) -> dict:
-        from docpulse.embed.tasks import run_build_embeddings
-
-        return run_build_embeddings()
-
-    @task
-    def verify_embeddings(summary: dict) -> dict:
-        from docpulse.embed.tasks import run_verify_embeddings
-
-        return run_verify_embeddings()
-
+    # Embeddings are deliberately not in this DAG. sentence-transformers is not in
+    # this image and build_encoder() raises rather than writing meaningless vectors,
+    # so the step belongs to the container that owns the model: `make embed`.
+    # What this DAG guarantees is that every paper_meta row is searchable, and
+    # check_meta is the task that proves it.
     verified_silver = verify_silver(build_silver(verify_bronze(ingest_to_bronze(ensure_bucket()))))
-    verified_embeddings = verify_embeddings(
-        embed_papers(check_meta(load_meta(verified_silver)))
-    )
-    return verified_embeddings
+    return check_meta(load_meta(verified_silver))
 
 
 arxiv_bronze_ingest()

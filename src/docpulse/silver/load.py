@@ -97,8 +97,21 @@ class MetaIntegrityError(RuntimeError):
 
 
 def _connect() -> Any:
-    """Open a connection using the same settings the embedder already reads."""
-    import psycopg
+    """Open a connection using the same settings the embedder already reads.
+
+    Two drivers, one interface. The embedder image ships psycopg 3; the Airflow image
+    ships psycopg2, because that is what its own metadata database needs. Both accept
+    a DSN, %(name)s parameters and a list of dicts for executemany, so the fallback is
+    a rename rather than a second code path.
+
+    This exists because the first real DAG run failed here with ModuleNotFoundError
+    after silver had already grown to 8,274 papers -- the load task was the first code
+    in the project to run in the Airflow image *and* talk to the corpus database.
+    """
+    try:
+        import psycopg
+    except ModuleNotFoundError:  # the Airflow image: psycopg2 only
+        import psycopg2 as psycopg
 
     from docpulse.embed.config import EmbeddingSettings
 
