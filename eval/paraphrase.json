@@ -1,0 +1,116 @@
+{
+  "generated": "2026-11-09T20:25:00Z",
+  "note": "Hand-written paraphrase queries, one per sampled paper, using none of that paper's vocabulary. Each expects only its source paper: this measures whether the source surfaces at all, not full relevance. It is the honest counterpart to the verbatim phrase set, where keyword search cannot lose.",
+  "items": [
+    {
+      "kind": "paraphrase",
+      "query": "how to tell which helper is reliable when several copies of one system keep disagreeing",
+      "param": {
+        "q": "how to tell which helper is reliable when several copies of one system keep disagreeing"
+      },
+      "expect": [
+        "2611.04805"
+      ],
+      "note": "avoids: truth discovery, belief propagation, correlated errors, base model"
+    },
+    {
+      "kind": "paraphrase",
+      "query": "prediction bands stop keeping their promise once making a forecast changes the outcome it forecasts",
+      "param": {
+        "q": "prediction bands stop keeping their promise once making a forecast changes the outcome it forecasts"
+      },
+      "expect": [
+        "2611.05277"
+      ],
+      "note": "avoids: conformal prediction, coverage, exchangeability, performativity"
+    },
+    {
+      "kind": "paraphrase",
+      "query": "learned models that invent plausible detail where measurements of chaotic flows are missing",
+      "param": {
+        "q": "learned models that invent plausible detail where measurements of chaotic flows are missing"
+      },
+      "expect": [
+        "2610.35123"
+      ],
+      "note": "avoids: generative AI, turbulence, closures, assimilation"
+    },
+    {
+      "kind": "paraphrase",
+      "query": "survey of methods for analysing months of data from wrist-worn health trackers",
+      "param": {
+        "q": "survey of methods for analysing months of data from wrist-worn health trackers"
+      },
+      "expect": [
+        "2407.21665"
+      ],
+      "note": "avoids: longitudinal, wearable, computational models, review"
+    },
+    {
+      "kind": "paraphrase",
+      "query": "what a chatbot does to itself when allowed to rewrite its own instructions over and over",
+      "param": {
+        "q": "what a chatbot does to itself when allowed to rewrite its own instructions over and over"
+      },
+      "expect": [
+        "2611.01304"
+      ],
+      "note": "avoids: self-modification, convergence, values, iterative"
+    },
+    {
+      "kind": "paraphrase",
+      "query": "should a compact model learn from its mentor's successes or from its own mistakes",
+      "param": {
+        "q": "should a compact model learn from its mentor's successes or from its own mistakes"
+      },
+      "expect": [
+        "2610.31918"
+      ],
+      "note": "avoids: distillation, on-policy, off-policy, teacher, student, agent"
+    },
+    {
+      "kind": "paraphrase",
+      "query": "asking a model for several guesses at once does not reliably cancel its biases",
+      "param": {
+        "q": "asking a model for several guesses at once does not reliably cancel its biases"
+      },
+      "expect": [
+        "2611.00597"
+      ],
+      "note": "avoids: multi-estimate, elicitation, debias, anchoring, hindsight"
+    },
+    {
+      "kind": "paraphrase",
+      "query": "why piling on more information sources can make a screening campaign worse",
+      "param": {
+        "q": "why piling on more information sources can make a screening campaign worse"
+      },
+      "expect": [
+        "2611.02571"
+      ],
+      "note": "avoids: databases, materials, band-gap, anion families"
+    },
+    {
+      "kind": "paraphrase",
+      "query": "speeding up expensive trial-and-error optimisation by grouping the search space first",
+      "param": {
+        "q": "speeding up expensive trial-and-error optimisation by grouping the search space first"
+      },
+      "expect": [
+        "2601.07442"
+      ],
+      "note": "avoids: surrogate, clustering, box-constrained, black-box"
+    },
+    {
+      "kind": "paraphrase",
+      "query": "the mathematical structure of the smoothing term that appears when a two-class model is trained against an attacker",
+      "param": {
+        "q": "the mathematical structure of the smoothing term that appears when a two-class model is trained against an attacker"
+      },
+      "expect": [
+        "2604.18540"
+      ],
+      "note": "avoids: duality, total variation, subdifferential, adversarial"
+    }
+  ]
+}

@@ -1,0 +1,1806 @@
+{
+  "generated": "2026-11-09T20:20:21+00:00",
+  "sampled_papers": 60,
+  "items": [
+    {
+      "kind": "title",
+      "query": "Where Is the Truth When AI Agents Disagree? Dependence-Aware Belief Propagation for Unsupervised Truth Discovery (Extended Version)",
+      "param": {
+        "q": "Where Is the Truth When AI Agents Disagree? Dependence-Aware Belief Propagation for Unsupervised Truth Discovery (Extended Version)"
+      },
+      "expect": [
+        "2611.04805"
+      ]
+    },
+    {
+      "kind": "phrase",
+      "query": "adds per-agent decorrelation weights to mean-field variational inference",
+      "param": {
+        "q": "adds per-agent decorrelation weights to mean-field variational inference"
+      },
+      "expect": [
+        "2611.04805"
+      ]
+    },
+    {
+      "kind": "author",
+      "query": "Laure Berti-Equille where",
+      "param": {
+        "author": "Laure Berti-Equille"
+      },
+      "expect": [
+        "2611.04805"
+      ]
+    },
+    {
+      "kind": "title",
+      "query": "Conformal Prediction at Performative Equilibrium: The Price of Performativity",
+      "param": {
+        "q": "Conformal Prediction at Performative Equilibrium: The Price of Performativity"
+      },
+      "expect": [
+        "2611.05277"
+      ]
+    },
+    {
+      "kind": "phrase",
+      "query": "for a performatively stable predictor $f^\\star$. Under total-variation",
+      "param": {
+        "q": "for a performatively stable predictor $f^\\star$. Under total-variation"
+      },
+      "expect": [
+        "2611.05277"
+      ]
+    },
+    {
+      "kind": "author",
+      "query": "Ahmed Mahrous conformal",
+      "param": {
+        "author": "Ahmed Mahrous"
+      },
+      "expect": [
+        "2611.05277"
+      ]
+    },
+    {
+      "kind": "title",
+      "query": "Generative AI in Turbulence: Foundations, Applications, Validations and Benchmarks",
+      "param": {
+        "q": "Generative AI in Turbulence: Foundations, Applications, Validations and Benchmarks"
+      },
+      "expect": [
+        "2610.35123"
+      ]
+    },
+    {
+      "kind": "phrase",
+      "query": "conventional image-generation problem. Its multiscale dynamics, intermittency, extreme",
+      "param": {
+        "q": "conventional image-generation problem. Its multiscale dynamics, intermittency, extreme"
+      },
+      "expect": [
+        "2610.35123"
+      ]
+    },
+    {
+      "kind": "author",
+      "query": "Luca Biferale generative",
+      "param": {
+        "author": "Luca Biferale"
+      },
+      "expect": [
+        "2610.35123"
+      ]
+    },
+    {
+      "kind": "title",
+      "query": "A State-of-the-Art Review of Computational Models for Analyzing Longitudinal Wearable Sensor Data in Healthcare",
+      "param": {
+        "q": "A State-of-the-Art Review of Computational Models for Analyzing Longitudinal Wearable Sensor Data in Healthcare"
+      },
+      "expect": [
+        "2407.21665"
+      ]
+    },
+    {
+      "kind": "phrase",
+      "query": "and healthcare more predictive, preventive, personalized, and participative",
+      "param": {
+        "q": "and healthcare more predictive, preventive, personalized, and participative"
+      },
+      "expect": [
+        "2407.21665"
+      ]
+    },
+    {
+      "kind": "author",
+      "query": "Paula Lago state-of-the-art",
+      "param": {
+        "author": "Paula Lago"
+      },
+      "expect": [
+        "2407.21665"
+      ]
+    },
+    {
+      "kind": "title",
+      "query": "When LLMs Modify Themselves: Convergence, Values, and Stopping in Iterative Self-Improvement",
+      "param": {
+        "q": "When LLMs Modify Themselves: Convergence, Values, and Stopping in Iterative Self-Improvement"
+      },
+      "expect": [
+        "2611.01304"
+      ]
+    },
+    {
+      "kind": "phrase",
+      "query": "the model is instructed to optimize for. In",
+      "param": {
+        "q": "the model is instructed to optimize for. In"
+      },
+      "expect": [
+        "2611.01304"
+      ]
+    },
+    {
+      "kind": "author",
+      "query": "Oleg Stroganov when",
+      "param": {
+        "author": "Oleg Stroganov"
+      },
+      "expect": [
+        "2611.01304"
+      ]
+    },
+    {
+      "kind": "title",
+      "query": "Beyond On-Policy vs. Off-Policy: At What Level Should LLM Agent Distillation Follow the Student?",
+      "param": {
+        "q": "Beyond On-Policy vs. Off-Policy: At What Level Should LLM Agent Distillation Follow the Student?"
+      },
+      "expect": [
+        "2610.31918"
+      ]
+    },
+    {
+      "kind": "phrase",
+      "query": "the current action. We introduce a hierarchical agent",
+      "param": {
+        "q": "the current action. We introduce a hierarchical agent"
+      },
+      "expect": [
+        "2610.31918"
+      ]
+    },
+    {
+      "kind": "author",
+      "query": "Ya Gao beyond",
+      "param": {
+        "author": "Ya Gao"
+      },
+      "expect": [
+        "2610.31918"
+      ]
+    },
+    {
+      "kind": "title",
+      "query": "Multi-Estimate Elicitation Does Not Uniformly Debias Language Model Judgments",
+      "param": {
+        "q": "Multi-Estimate Elicitation Does Not Uniformly Debias Language Model Judgments"
+      },
+      "expect": [
+        "2611.00597"
+      ]
+    },
+    {
+      "kind": "phrase",
+      "query": "cohort contains 22,212 units, including 21 missing outcomes",
+      "param": {
+        "q": "cohort contains 22,212 units, including 21 missing outcomes"
+      },
+      "expect": [
+        "2611.00597"
+      ]
+    },
+    {
+      "kind": "author",
+      "query": "An-Sheng Jhang multi-estimate",
+      "param": {
+        "author": "An-Sheng Jhang"
+      },
+      "expect": [
+        "2611.00597"
+      ]
+    },
+    {
+      "kind": "title",
+      "query": "Organizational Learning in Materials Discovery Campaigns: Which Databases, Calculations, and Agent Teams Pay Off",
+      "param": {
+        "q": "Organizational Learning in Materials Discovery Campaigns: Which Databases, Calculations, and Agent Teams Pay Off"
+      },
+      "expect": [
+        "2611.02571"
+      ]
+    },
+    {
+      "kind": "phrase",
+      "query": "choosing the pool on half the runs and",
+      "param": {
+        "q": "choosing the pool on half the runs and"
+      },
+      "expect": [
+        "2611.02571"
+      ]
+    },
+    {
+      "kind": "author",
+      "query": "Kinston Ackölf organizational",
+      "param": {
+        "author": "Kinston Ackölf"
+      },
+      "expect": [
+        "2611.02571"
+      ]
+    },
+    {
+      "kind": "title",
+      "query": "Surrogate-based Optimization via Clustering for Box-Constrained Problems",
+      "param": {
+        "q": "Surrogate-based Optimization via Clustering for Box-Constrained Problems"
+      },
+      "expect": [
+        "2601.07442"
+      ]
+    },
+    {
+      "kind": "phrase",
+      "query": "for the entire domain, employs k-means clustering to",
+      "param": {
+        "q": "for the entire domain, employs k-means clustering to"
+      },
+      "expect": [
+        "2601.07442"
+      ]
+    },
+    {
+      "kind": "author",
+      "query": "Maaz Ahmad surrogate-based",
+      "param": {
+        "author": "Maaz Ahmad"
+      },
+      "expect": [
+        "2601.07442"
+      ]
+    },
+    {
+      "kind": "title",
+      "query": "Duality for the Adversarial Total Variation",
+      "param": {
+        "q": "Duality for the Adversarial Total Variation"
+      },
+      "expect": [
+        "2604.18540"
+      ]
+    },
+    {
+      "kind": "phrase",
+      "query": "the nonlocal total variation and a related integration-by-parts",
+      "param": {
+        "q": "the nonlocal total variation and a related integration-by-parts"
+      },
+      "expect": [
+        "2604.18540"
+      ]
+    },
+    {
+      "kind": "author",
+      "query": "Leon Bungert duality",
+      "param": {
+        "author": "Leon Bungert"
+      },
+      "expect": [
+        "2604.18540"
+      ]
+    },
+    {
+      "kind": "title",
+      "query": "Ermakov--Based embeddings as a parameter-free layer for physics-informed neural networks",
+      "param": {
+        "q": "Ermakov--Based embeddings as a parameter-free layer for physics-informed neural networks"
+      },
+      "expect": [
+        "2611.03964"
+      ]
+    },
+    {
+      "kind": "phrase",
+      "query": "of the Pinney constant $c$: linear diffusion ($c=-1$",
+      "param": {
+        "q": "of the Pinney constant $c$: linear diffusion ($c=-1$"
+      },
+      "expect": [
+        "2611.03964"
+      ]
+    },
+    {
+      "kind": "author",
+      "query": "Roberto Bernal-Jaquez ermakov--based",
+      "param": {
+        "author": "Roberto Bernal-Jaquez"
+      },
+      "expect": [
+        "2611.03964"
+      ]
+    },
+    {
+      "kind": "title",
+      "query": "Generation, Not Selection: LLM Proposals for Certified Access-Control Policy Mining",
+      "param": {
+        "q": "Generation, Not Selection: LLM Proposals for Certified Access-Control Policy Mining"
+      },
+      "expect": [
+        "2610.37716"
+      ]
+    },
+    {
+      "kind": "phrase",
+      "query": "constraint, and existing generators are purely \\emph{syntactic}---they surface",
+      "param": {
+        "q": "constraint, and existing generators are purely \\emph{syntactic}---they surface"
+      },
+      "expect": [
+        "2610.37716"
+      ]
+    },
+    {
+      "kind": "author",
+      "query": "Gautam Kumar generation",
+      "param": {
+        "author": "Gautam Kumar"
+      },
+      "expect": [
+        "2610.37716"
+      ]
+    },
+    {
+      "kind": "title",
+      "query": "Reinforcement Learning based Traffic Signal Control for Queue Minimization: From Lane-based to Laneless Traffic",
+      "param": {
+        "q": "Reinforcement Learning based Traffic Signal Control for Queue Minimization: From Lane-based to Laneless Traffic"
+      },
+      "expect": [
+        "2509.21745"
+      ]
+    },
+    {
+      "kind": "phrase",
+      "query": "using SUMO on a conventional lane-based, homogeneous (LBHO)",
+      "param": {
+        "q": "using SUMO on a conventional lane-based, homogeneous (LBHO)"
+      },
+      "expect": [
+        "2509.21745"
+      ]
+    },
+    {
+      "kind": "author",
+      "query": "Anirud Nandakumar reinforcement",
+      "param": {
+        "author": "Anirud Nandakumar"
+      },
+      "expect": [
+        "2509.21745"
+      ]
+    },
+    {
+      "kind": "title",
+      "query": "On the Sparsity of Direct Preference Optimization: Weight Disentanglement in the NTK Regime",
+      "param": {
+        "q": "On the Sparsity of Direct Preference Optimization: Weight Disentanglement in the NTK Regime"
+      },
+      "expect": [
+        "2610.37085"
+      ]
+    },
+    {
+      "kind": "phrase",
+      "query": "the DPO loss gives rise to an implicit",
+      "param": {
+        "q": "the DPO loss gives rise to an implicit"
+      },
+      "expect": [
+        "2610.37085"
+      ]
+    },
+    {
+      "kind": "author",
+      "query": "Kensuke Sasaki sparsity",
+      "param": {
+        "author": "Kensuke Sasaki"
+      },
+      "expect": [
+        "2610.37085"
+      ]
+    },
+    {
+      "kind": "title",
+      "query": "Evaluating Language Model Features for Zero-Shot Time-Series Anomaly Detection Under Isolation Assumption",
+      "param": {
+        "q": "Evaluating Language Model Features for Zero-Shot Time-Series Anomaly Detection Under Isolation Assumption"
+      },
+      "expect": [
+        "2611.07720"
+      ]
+    },
+    {
+      "kind": "phrase",
+      "query": "temporal and variables structures, and most methods optimise",
+      "param": {
+        "q": "temporal and variables structures, and most methods optimise"
+      },
+      "expect": [
+        "2611.07720"
+      ]
+    },
+    {
+      "kind": "author",
+      "query": "Romain Hermary evaluating",
+      "param": {
+        "author": "Romain Hermary"
+      },
+      "expect": [
+        "2611.07720"
+      ]
+    },
+    {
+      "kind": "title",
+      "query": "Gradient Descent's Last Iterate is Often (slightly) Suboptimal",
+      "param": {
+        "q": "Gradient Descent's Last Iterate is Often (slightly) Suboptimal"
+      },
+      "expect": [
+        "2604.13870"
+      ]
+    },
+    {
+      "kind": "phrase",
+      "query": "upper bound holds already for SGD, and improves",
+      "param": {
+        "q": "upper bound holds already for SGD, and improves"
+      },
+      "expect": [
+        "2604.13870"
+      ]
+    },
+    {
+      "kind": "author",
+      "query": "Guy Kornowski gradient",
+      "param": {
+        "author": "Guy Kornowski"
+      },
+      "expect": [
+        "2604.13870"
+      ]
+    },
+    {
+      "kind": "title",
+      "query": "Tight Asymptotic Bounds on the Maximum Number of Linear Regions of Piecewise-Linear Kolmogorov--Arnold networks",
+      "param": {
+        "q": "Tight Asymptotic Bounds on the Maximum Number of Linear Regions of Piecewise-Linear Kolmogorov--Arnold networks"
+      },
+      "expect": [
+        "2611.07973"
+      ]
+    },
+    {
+      "kind": "phrase",
+      "query": "$n_T=1$, and at most $k\\geq2$ affine segments per",
+      "param": {
+        "q": "$n_T=1$, and at most $k\\geq2$ affine segments per"
+      },
+      "expect": [
+        "2611.07973"
+      ]
+    },
+    {
+      "kind": "author",
+      "query": "Ye Su tight",
+      "param": {
+        "author": "Ye Su"
+      },
+      "expect": [
+        "2611.07973"
+      ]
+    },
+    {
+      "kind": "title",
+      "query": "Pricing Today, Shaping Tomorrow: Contextual Dynamic Pricing in Purchase-Driven Evolving Systems",
+      "param": {
+        "q": "Pricing Today, Shaping Tomorrow: Contextual Dynamic Pricing in Purchase-Driven Evolving Systems"
+      },
+      "expect": [
+        "2611.00719"
+      ]
+    },
+    {
+      "kind": "phrase",
+      "query": "with an observed shared state and unknown purchase-driven",
+      "param": {
+        "q": "with an observed shared state and unknown purchase-driven"
+      },
+      "expect": [
+        "2611.00719"
+      ]
+    },
+    {
+      "kind": "author",
+      "query": "Jinjiang Zou pricing",
+      "param": {
+        "author": "Jinjiang Zou"
+      },
+      "expect": [
+        "2611.00719"
+      ]
+    },
+    {
+      "kind": "title",
+      "query": "SAP-ViT: A Self-Attributing Patch Vision Transformer for Medical Image Classification",
+      "param": {
+        "q": "SAP-ViT: A Self-Attributing Patch Vision Transformer for Medical Image Classification"
+      },
+      "expect": [
+        "2610.35593"
+      ]
+    },
+    {
+      "kind": "phrase",
+      "query": "class predictions decomposable into patch-level contributions as part",
+      "param": {
+        "q": "class predictions decomposable into patch-level contributions as part"
+      },
+      "expect": [
+        "2610.35593"
+      ]
+    },
+    {
+      "kind": "author",
+      "query": "Wei Zhang sap-vit",
+      "param": {
+        "author": "Wei Zhang"
+      },
+      "expect": [
+        "2610.35593"
+      ]
+    },
+    {
+      "kind": "title",
+      "query": "Discarded or Unreachable? Diagnosing and Repairing Spatial Relation Failure in Vision--Language Similarity",
+      "param": {
+        "q": "Discarded or Unreachable? Diagnosing and Repairing Spatial Relation Failure in Vision--Language Similarity"
+      },
+      "expect": [
+        "2611.05565"
+      ]
+    },
+    {
+      "kind": "phrase",
+      "query": "component of the pooled vector at 0.77-0.99, yet",
+      "param": {
+        "q": "component of the pooled vector at 0.77-0.99, yet"
+      },
+      "expect": [
+        "2611.05565"
+      ]
+    },
+    {
+      "kind": "author",
+      "query": "Mahdi Mostajabdaveh discarded",
+      "param": {
+        "author": "Mahdi Mostajabdaveh"
+      },
+      "expect": [
+        "2611.05565"
+      ]
+    },
+    {
+      "kind": "title",
+      "query": "SCOPE: Compiling Natural-Language Policies into Neurosymbolic Predicate Programs",
+      "param": {
+        "q": "SCOPE: Compiling Natural-Language Policies into Neurosymbolic Predicate Programs"
+      },
+      "expect": [
+        "2610.31062"
+      ]
+    },
+    {
+      "kind": "phrase",
+      "query": "offer a natural alternative, decomposing the policy into",
+      "param": {
+        "q": "offer a natural alternative, decomposing the policy into"
+      },
+      "expect": [
+        "2610.31062"
+      ]
+    },
+    {
+      "kind": "author",
+      "query": "Arnon Mazza scope",
+      "param": {
+        "author": "Arnon Mazza"
+      },
+      "expect": [
+        "2610.31062"
+      ]
+    },
+    {
+      "kind": "title",
+      "query": "Risk-Aware Alignment Must Incorporate Reward Uncertainty",
+      "param": {
+        "q": "Risk-Aware Alignment Must Incorporate Reward Uncertainty"
+      },
+      "expect": [
+        "2410.23726"
+      ]
+    },
+    {
+      "kind": "phrase",
+      "query": "noisy reward function, we show that the regularizer",
+      "param": {
+        "q": "noisy reward function, we show that the regularizer"
+      },
+      "expect": [
+        "2410.23726"
+      ]
+    },
+    {
+      "kind": "author",
+      "query": "Debangshu Banerjee risk-aware",
+      "param": {
+        "author": "Debangshu Banerjee"
+      },
+      "expect": [
+        "2410.23726"
+      ]
+    },
+    {
+      "kind": "title",
+      "query": "SysPilot: Cross-Library Performance Autotuning via Library Performance Contracts",
+      "param": {
+        "q": "SysPilot: Cross-Library Performance Autotuning via Library Performance Contracts"
+      },
+      "expect": [
+        "2611.06078"
+      ]
+    },
+    {
+      "kind": "phrase",
+      "query": "not directly investigate what resources are shared between",
+      "param": {
+        "q": "not directly investigate what resources are shared between"
+      },
+      "expect": [
+        "2611.06078"
+      ]
+    },
+    {
+      "kind": "author",
+      "query": "Yineng Yan syspilot",
+      "param": {
+        "author": "Yineng Yan"
+      },
+      "expect": [
+        "2611.06078"
+      ]
+    },
+    {
+      "kind": "title",
+      "query": "trajectory-judge: What Outcome-Only LLM Judges Miss on Agent Trajectories",
+      "param": {
+        "q": "trajectory-judge: What Outcome-Only LLM Judges Miss on Agent Trajectories"
+      },
+      "expect": [
+        "2609.00038"
+      ]
+    },
+    {
+      "kind": "phrase",
+      "query": "with a scripted oracle and a one-step fault",
+      "param": {
+        "q": "with a scripted oracle and a one-step fault"
+      },
+      "expect": [
+        "2609.00038"
+      ]
+    },
+    {
+      "kind": "author",
+      "query": "Hadi Mohammadi trajectory-judge",
+      "param": {
+        "author": "Hadi Mohammadi"
+      },
+      "expect": [
+        "2609.00038"
+      ]
+    },
+    {
+      "kind": "title",
+      "query": "Text-to-SQL Models Make Choices Without Saying So",
+      "param": {
+        "q": "Text-to-SQL Models Make Choices Without Saying So"
+      },
+      "expect": [
+        "2611.04318"
+      ]
+    },
+    {
+      "kind": "phrase",
+      "query": "SpecBridge, which tests such a choice by varying",
+      "param": {
+        "q": "SpecBridge, which tests such a choice by varying"
+      },
+      "expect": [
+        "2611.04318"
+      ]
+    },
+    {
+      "kind": "author",
+      "query": "Yichen Xu text-to-sql",
+      "param": {
+        "author": "Yichen Xu"
+      },
+      "expect": [
+        "2611.04318"
+      ]
+    },
+    {
+      "kind": "title",
+      "query": "Post-Inference Model Chaining: A Problem Statement and a Model-based Bootstrap for Training End-to-End Digital Twins",
+      "param": {
+        "q": "Post-Inference Model Chaining: A Problem Statement and a Model-based Bootstrap for Training End-to-End Digital Twins"
+      },
+      "expect": [
+        "2611.05225"
+      ]
+    },
+    {
+      "kind": "phrase",
+      "query": "deterministic. Analytical two-stage examples show persistent asymptotic interval",
+      "param": {
+        "q": "deterministic. Analytical two-stage examples show persistent asymptotic interval"
+      },
+      "expect": [
+        "2611.05225"
+      ]
+    },
+    {
+      "kind": "author",
+      "query": "Lukas Madenach post-inference",
+      "param": {
+        "author": "Lukas Madenach"
+      },
+      "expect": [
+        "2611.05225"
+      ]
+    },
+    {
+      "kind": "title",
+      "query": "Compression Through a Context Lens: Evaluating Adaptation, Quantization, and Distillation in Arabic Legal LLMs",
+      "param": {
+        "q": "Compression Through a Context Lens: Evaluating Adaptation, Quantization, and Distillation in Arabic Legal LLMs"
+      },
+      "expect": [
+        "2611.07988"
+      ]
+    },
+    {
+      "kind": "phrase",
+      "query": "assesses performance without external context. Removing the context",
+      "param": {
+        "q": "assesses performance without external context. Removing the context"
+      },
+      "expect": [
+        "2611.07988"
+      ]
+    },
+    {
+      "kind": "author",
+      "query": "Md. Rafiul Biswas compression",
+      "param": {
+        "author": "Md. Rafiul Biswas"
+      },
+      "expect": [
+        "2611.07988"
+      ]
+    },
+    {
+      "kind": "title",
+      "query": "Dynamic Quadtree Tokenization and Transformer for Adaptive Mesh PDE Forecasting",
+      "param": {
+        "q": "Dynamic Quadtree Tokenization and Transformer for Adaptive Mesh PDE Forecasting"
+      },
+      "expect": [
+        "2610.04044"
+      ]
+    },
+    {
+      "kind": "phrase",
+      "query": "tokenizes inputs as balanced quadtrees using a wavelet-inspired",
+      "param": {
+        "q": "tokenizes inputs as balanced quadtrees using a wavelet-inspired"
+      },
+      "expect": [
+        "2610.04044"
+      ]
+    },
+    {
+      "kind": "author",
+      "query": "Yilin Zhuang dynamic",
+      "param": {
+        "author": "Yilin Zhuang"
+      },
+      "expect": [
+        "2610.04044"
+      ]
+    },
+    {
+      "kind": "title",
+      "query": "Stand-In Effects and Pooling Amplification: Design-Based Tests of Whether Biological World Models Use Actions",
+      "param": {
+        "q": "Stand-In Effects and Pooling Amplification: Design-Based Tests of Whether Biological World Models Use Actions"
+      },
+      "expect": [
+        "2611.01666"
+      ]
+    },
+    {
+      "kind": "phrase",
+      "query": "learns the stand-in better. When the design law",
+      "param": {
+        "q": "learns the stand-in better. When the design law"
+      },
+      "expect": [
+        "2611.01666"
+      ]
+    },
+    {
+      "kind": "author",
+      "query": "Bowen Xu stand-in",
+      "param": {
+        "author": "Bowen Xu"
+      },
+      "expect": [
+        "2611.01666"
+      ]
+    },
+    {
+      "kind": "title",
+      "query": "Intent-Preserving Adversarial User Simulation for Multi-Turn Agent Evaluation",
+      "param": {
+        "q": "Intent-Preserving Adversarial User Simulation for Multi-Turn Agent Evaluation"
+      },
+      "expect": [
+        "2610.35426"
+      ]
+    },
+    {
+      "kind": "phrase",
+      "query": "instance. Candidate planner prompts are evolved with a",
+      "param": {
+        "q": "instance. Candidate planner prompts are evolved with a"
+      },
+      "expect": [
+        "2610.35426"
+      ]
+    },
+    {
+      "kind": "author",
+      "query": "Atri Vivek Sharma intent-preserving",
+      "param": {
+        "author": "Atri Vivek Sharma"
+      },
+      "expect": [
+        "2610.35426"
+      ]
+    },
+    {
+      "kind": "title",
+      "query": "GatedV: Self-Gated Values for Transformer Language Models",
+      "param": {
+        "q": "GatedV: Self-Gated Values for Transformer Language Models"
+      },
+      "expect": [
+        "2611.02145"
+      ]
+    },
+    {
+      "kind": "phrase",
+      "query": "We evaluate GatedV against a standard decoder-only Transformer",
+      "param": {
+        "q": "We evaluate GatedV against a standard decoder-only Transformer"
+      },
+      "expect": [
+        "2611.02145"
+      ]
+    },
+    {
+      "kind": "author",
+      "query": "Li-Ming Yu gatedv",
+      "param": {
+        "author": "Li-Ming Yu"
+      },
+      "expect": [
+        "2611.02145"
+      ]
+    },
+    {
+      "kind": "title",
+      "query": "The Tower of Babel in artificial intelligence: who should speak, and when it pays to listen",
+      "param": {
+        "q": "The Tower of Babel in artificial intelligence: who should speak, and when it pays to listen"
+      },
+      "expect": [
+        "2611.03020"
+      ]
+    },
+    {
+      "kind": "phrase",
+      "query": "18.07 to 22.68 percentage points on average with",
+      "param": {
+        "q": "18.07 to 22.68 percentage points on average with"
+      },
+      "expect": [
+        "2611.03020"
+      ]
+    },
+    {
+      "kind": "author",
+      "query": "Mohammad Salahshour tower",
+      "param": {
+        "author": "Mohammad Salahshour"
+      },
+      "expect": [
+        "2611.03020"
+      ]
+    },
+    {
+      "kind": "title",
+      "query": "MarkTune: Improving the Quality-Detectability Trade-off in Model-Embedded LLM Watermarking",
+      "param": {
+        "q": "MarkTune: Improving the Quality-Detectability Trade-off in Model-Embedded LLM Watermarking"
+      },
+      "expect": [
+        "2512.04044"
+      ]
+    },
+    {
+      "kind": "phrase",
+      "query": "prevalent open-weight model settings. In contrast, model-embedded watermarks",
+      "param": {
+        "q": "prevalent open-weight model settings. In contrast, model-embedded watermarks"
+      },
+      "expect": [
+        "2512.04044"
+      ]
+    },
+    {
+      "kind": "author",
+      "query": "Yizhou Zhao marktune",
+      "param": {
+        "author": "Yizhou Zhao"
+      },
+      "expect": [
+        "2512.04044"
+      ]
+    },
+    {
+      "kind": "title",
+      "query": "TamilEOT: A Dataset and Model for Semantic End-of-Turn Detection in Tamil Telephone Speech",
+      "param": {
+        "q": "TamilEOT: A Dataset and Model for Semantic End-of-Turn Detection in Tamil Telephone Speech"
+      },
+      "expect": [
+        "2609.05631"
+      ]
+    },
+    {
+      "kind": "phrase",
+      "query": "18,485 labelled turn boundaries from 116 real Tamil",
+      "param": {
+        "q": "18,485 labelled turn boundaries from 116 real Tamil"
+      },
+      "expect": [
+        "2609.05631"
+      ]
+    },
+    {
+      "kind": "author",
+      "query": "Santhoshkumar V tamileot",
+      "param": {
+        "author": "Santhoshkumar V"
+      },
+      "expect": [
+        "2609.05631"
+      ]
+    },
+    {
+      "kind": "title",
+      "query": "Beyond Monotonicity: Stochastic Online Optimization under Semi-Bandit Feedback",
+      "param": {
+        "q": "Beyond Monotonicity: Stochastic Online Optimization under Semi-Bandit Feedback"
+      },
+      "expect": [
+        "2611.02739"
+      ]
+    },
+    {
+      "kind": "phrase",
+      "query": "Our algorithm runs the dynamic program for the",
+      "param": {
+        "q": "Our algorithm runs the dynamic program for the"
+      },
+      "expect": [
+        "2611.02739"
+      ]
+    },
+    {
+      "kind": "author",
+      "query": "Tsubasa Harada beyond",
+      "param": {
+        "author": "Tsubasa Harada"
+      },
+      "expect": [
+        "2611.02739"
+      ]
+    },
+    {
+      "kind": "title",
+      "query": "CLARiTy: A Vision Transformer for Multi-Label Classification and Weakly-Supervised Localization of Chest X-ray Pathologies",
+      "param": {
+        "q": "CLARiTy: A Vision Transformer for Multi-Label Classification and Weakly-Supervised Localization of Chest X-ray Pathologies"
+      },
+      "expect": [
+        "2512.16700"
+      ]
+    },
+    {
+      "kind": "phrase",
+      "query": "for joint multi-label classification and weakly-supervised localization of",
+      "param": {
+        "q": "for joint multi-label classification and weakly-supervised localization of"
+      },
+      "expect": [
+        "2512.16700"
+      ]
+    },
+    {
+      "kind": "author",
+      "query": "John M. Statheros clarity",
+      "param": {
+        "author": "John M. Statheros"
+      },
+      "expect": [
+        "2512.16700"
+      ]
+    },
+    {
+      "kind": "title",
+      "query": "Provably Efficient Q-learning for Robust Reinforcement Learning",
+      "param": {
+        "q": "Provably Efficient Q-learning for Robust Reinforcement Learning"
+      },
+      "expect": [
+        "2610.35656"
+      ]
+    },
+    {
+      "kind": "phrase",
+      "query": "is still lacking} for robust RL, particularly for",
+      "param": {
+        "q": "is still lacking} for robust RL, particularly for"
+      },
+      "expect": [
+        "2610.35656"
+      ]
+    },
+    {
+      "kind": "author",
+      "query": "Yuchen Jiao provably",
+      "param": {
+        "author": "Yuchen Jiao"
+      },
+      "expect": [
+        "2610.35656"
+      ]
+    },
+    {
+      "kind": "title",
+      "query": "Camera Radar LiDAR Fusion via Point-Cloud Projection for Multi-Task Learning",
+      "param": {
+        "q": "Camera Radar LiDAR Fusion via Point-Cloud Projection for Multi-Task Learning"
+      },
+      "expect": [
+        "2611.03942"
+      ]
+    },
+    {
+      "kind": "phrase",
+      "query": "delivers highly precise distance measurements and dense point",
+      "param": {
+        "q": "delivers highly precise distance measurements and dense point"
+      },
+      "expect": [
+        "2611.03942"
+      ]
+    },
+    {
+      "kind": "author",
+      "query": "Kavin Chandrasekaran camera",
+      "param": {
+        "author": "Kavin Chandrasekaran"
+      },
+      "expect": [
+        "2611.03942"
+      ]
+    },
+    {
+      "kind": "title",
+      "query": "NepTTS-Bench: Native-Speaker Benchmarking and NepaliMOS for Nepali Text-to-Speech",
+      "param": {
+        "q": "NepTTS-Bench: Native-Speaker Benchmarking and NepaliMOS for Nepali Text-to-Speech"
+      },
+      "expect": [
+        "2611.03718"
+      ]
+    },
+    {
+      "kind": "phrase",
+      "query": "rated by 180 speakers. There are 6,962 ratings",
+      "param": {
+        "q": "rated by 180 speakers. There are 6,962 ratings"
+      },
+      "expect": [
+        "2611.03718"
+      ]
+    },
+    {
+      "kind": "author",
+      "query": "Ashish Thapa neptts-bench",
+      "param": {
+        "author": "Ashish Thapa"
+      },
+      "expect": [
+        "2611.03718"
+      ]
+    },
+    {
+      "kind": "title",
+      "query": "Does Reasoning Make Language Models Agree?",
+      "param": {
+        "q": "Does Reasoning Make Language Models Agree?"
+      },
+      "expect": [
+        "2610.41691"
+      ]
+    },
+    {
+      "kind": "phrase",
+      "query": "On the other hand, stochastic reasoning traces may",
+      "param": {
+        "q": "On the other hand, stochastic reasoning traces may"
+      },
+      "expect": [
+        "2610.41691"
+      ]
+    },
+    {
+      "kind": "author",
+      "query": "Mila Gorecki reasoning",
+      "param": {
+        "author": "Mila Gorecki"
+      },
+      "expect": [
+        "2610.41691"
+      ]
+    },
+    {
+      "kind": "title",
+      "query": "Knowing When the Evidence Is Enough: Requirement-Directed Search with Horn-Closure Certificates",
+      "param": {
+        "q": "Knowing When the Evidence Is Enough: Requirement-Directed Search with Horn-Closure Certificates"
+      },
+      "expect": [
+        "2610.34684"
+      ]
+    },
+    {
+      "kind": "phrase",
+      "query": "raises two challenges: deriving requirements from the question",
+      "param": {
+        "q": "raises two challenges: deriving requirements from the question"
+      },
+      "expect": [
+        "2610.34684"
+      ]
+    },
+    {
+      "kind": "author",
+      "query": "Xinyu Zhang knowing",
+      "param": {
+        "author": "Xinyu Zhang"
+      },
+      "expect": [
+        "2610.34684"
+      ]
+    },
+    {
+      "kind": "title",
+      "query": "Online Surrogate Repair: Decoupling High-Fidelity Feedback from Search Length in Closed-Loop Discovery",
+      "param": {
+        "q": "Online Surrogate Repair: Decoupling High-Fidelity Feedback from Search Length in Closed-Loop Discovery"
+      },
+      "expect": [
+        "2609.07655"
+      ]
+    },
+    {
+      "kind": "phrase",
+      "query": "be amplified by optimization. We propose \\emph{online surrogate",
+      "param": {
+        "q": "be amplified by optimization. We propose \\emph{online surrogate"
+      },
+      "expect": [
+        "2609.07655"
+      ]
+    },
+    {
+      "kind": "author",
+      "query": "Xiaotang Feng online",
+      "param": {
+        "author": "Xiaotang Feng"
+      },
+      "expect": [
+        "2609.07655"
+      ]
+    },
+    {
+      "kind": "title",
+      "query": "Predictive Maintenance at the Edge: An Embedded Anomaly Detection Pipeline Trained with Quantum Optimization",
+      "param": {
+        "q": "Predictive Maintenance at the Edge: An Embedded Anomaly Detection Pipeline Trained with Quantum Optimization"
+      },
+      "expect": [
+        "2610.40848"
+      ]
+    },
+    {
+      "kind": "phrase",
+      "query": "selected by minimum redundancy and maximum relevance (mRMR)",
+      "param": {
+        "q": "selected by minimum redundancy and maximum relevance (mRMR)"
+      },
+      "expect": [
+        "2610.40848"
+      ]
+    },
+    {
+      "kind": "author",
+      "query": "Filipe Chagas Ferraz predictive",
+      "param": {
+        "author": "Filipe Chagas Ferraz"
+      },
+      "expect": [
+        "2610.40848"
+      ]
+    },
+    {
+      "kind": "title",
+      "query": "Exact Spectral Uncertainty Decomposition for Linear-Gaussian Bayesian M/EEG Inverse Problems",
+      "param": {
+        "q": "Exact Spectral Uncertainty Decomposition for Linear-Gaussian Bayesian M/EEG Inverse Problems"
+      },
+      "expect": [
+        "2610.30207"
+      ]
+    },
+    {
+      "kind": "phrase",
+      "query": "study this distinction for linear-Gaussian M/EEG models with",
+      "param": {
+        "q": "study this distinction for linear-Gaussian M/EEG models with"
+      },
+      "expect": [
+        "2610.30207"
+      ]
+    },
+    {
+      "kind": "author",
+      "query": "Ismail Huseynov exact",
+      "param": {
+        "author": "Ismail Huseynov"
+      },
+      "expect": [
+        "2610.30207"
+      ]
+    },
+    {
+      "kind": "title",
+      "query": "Low-Margin Branch Points in Deterministic LLM Deliberatio",
+      "param": {
+        "q": "Low-Margin Branch Points in Deterministic LLM Deliberatio"
+      },
+      "expect": [
+        "2611.00546"
+      ]
+    },
+    {
+      "kind": "phrase",
+      "query": "in a five-agent committee under greedy decoding. We",
+      "param": {
+        "q": "in a five-agent committee under greedy decoding. We"
+      },
+      "expect": [
+        "2611.00546"
+      ]
+    },
+    {
+      "kind": "author",
+      "query": "Hajime Shimao low-margin",
+      "param": {
+        "author": "Hajime Shimao"
+      },
+      "expect": [
+        "2611.00546"
+      ]
+    },
+    {
+      "kind": "title",
+      "query": "Graph Neural Networks for Supply Chain Management: A Framework and Real World Benchmark",
+      "param": {
+        "q": "Graph Neural Networks for Supply Chain Management: A Framework and Real World Benchmark"
+      },
+      "expect": [
+        "2411.08550"
+      ]
+    },
+    {
+      "kind": "phrase",
+      "query": "foundations, familiarity with graph applications in SCM, and",
+      "param": {
+        "q": "foundations, familiarity with graph applications in SCM, and"
+      },
+      "expect": [
+        "2411.08550"
+      ]
+    },
+    {
+      "kind": "author",
+      "query": "Azmine Toushik Wasi graph",
+      "param": {
+        "author": "Azmine Toushik Wasi"
+      },
+      "expect": [
+        "2411.08550"
+      ]
+    },
+    {
+      "kind": "title",
+      "query": "Incorporating Machine-Others: An Enactive Exploration of Human-LLM Interactions",
+      "param": {
+        "q": "Incorporating Machine-Others: An Enactive Exploration of Human-LLM Interactions"
+      },
+      "expect": [
+        "2610.39869"
+      ]
+    },
+    {
+      "kind": "phrase",
+      "query": "nor sociality as such. And yet, humans interact",
+      "param": {
+        "q": "nor sociality as such. And yet, humans interact"
+      },
+      "expect": [
+        "2610.39869"
+      ]
+    },
+    {
+      "kind": "author",
+      "query": "Elena C. Cuffari incorporating",
+      "param": {
+        "author": "Elena C. Cuffari"
+      },
+      "expect": [
+        "2610.39869"
+      ]
+    },
+    {
+      "kind": "title",
+      "query": "Nonparametric GARCH: An Iterated Neural Estimator",
+      "param": {
+        "q": "Nonparametric GARCH: An Iterated Neural Estimator"
+      },
+      "expect": [
+        "2611.04157"
+      ]
+    },
+    {
+      "kind": "phrase",
+      "query": "to logarithmic factors. Under stationarity and mixing conditions",
+      "param": {
+        "q": "to logarithmic factors. Under stationarity and mixing conditions"
+      },
+      "expect": [
+        "2611.04157"
+      ]
+    },
+    {
+      "kind": "author",
+      "query": "Ruizhi Deng nonparametric",
+      "param": {
+        "author": "Ruizhi Deng"
+      },
+      "expect": [
+        "2611.04157"
+      ]
+    },
+    {
+      "kind": "title",
+      "query": "Closed Gates Leak: Decomposing Adjacent-Layer Cancellation in Gated Language Models",
+      "param": {
+        "q": "Closed Gates Leak: Decomposing Adjacent-Layer Cancellation in Gated Language Models"
+      },
+      "expect": [
+        "2610.39068"
+      ]
+    },
+    {
+      "kind": "phrase",
+      "query": "it writes anyway and how much less its",
+      "param": {
+        "q": "it writes anyway and how much less its"
+      },
+      "expect": [
+        "2610.39068"
+      ]
+    },
+    {
+      "kind": "author",
+      "query": "Harvey Dam closed",
+      "param": {
+        "author": "Harvey Dam"
+      },
+      "expect": [
+        "2610.39068"
+      ]
+    },
+    {
+      "kind": "title",
+      "query": "Conservative Dueling Bandits: Preference Learning under Baseline Constraints",
+      "param": {
+        "q": "Conservative Dueling Bandits: Preference Learning under Baseline Constraints"
+      },
+      "expect": [
+        "2610.36708"
+      ]
+    },
+    {
+      "kind": "phrase",
+      "query": "score is its probability of beating the best",
+      "param": {
+        "q": "score is its probability of beating the best"
+      },
+      "expect": [
+        "2610.36708"
+      ]
+    },
+    {
+      "kind": "author",
+      "query": "Rohan Deb conservative",
+      "param": {
+        "author": "Rohan Deb"
+      },
+      "expect": [
+        "2610.36708"
+      ]
+    },
+    {
+      "kind": "title",
+      "query": "The Cost of Coverage: Conformalising Native Forecast Uncertainty for GB Wind Power",
+      "param": {
+        "q": "The Cost of Coverage: Conformalising Native Forecast Uncertainty for GB Wind Power"
+      },
+      "expect": [
+        "2611.09815"
+      ]
+    },
+    {
+      "kind": "phrase",
+      "query": "two wind farms in Great Britain (GB) under",
+      "param": {
+        "q": "two wind farms in Great Britain (GB) under"
+      },
+      "expect": [
+        "2611.09815"
+      ]
+    },
+    {
+      "kind": "author",
+      "query": "Carl Somers cost",
+      "param": {
+        "author": "Carl Somers"
+      },
+      "expect": [
+        "2611.09815"
+      ]
+    },
+    {
+      "kind": "title",
+      "query": "Rethinking Data Selection: The Importance of Coverage over Difficulty in LLM Fine-Tuning",
+      "param": {
+        "q": "Rethinking Data Selection: The Importance of Coverage over Difficulty in LLM Fine-Tuning"
+      },
+      "expect": [
+        "2611.07323"
+      ]
+    },
+    {
+      "kind": "phrase",
+      "query": "random selection performs better because it is more",
+      "param": {
+        "q": "random selection performs better because it is more"
+      },
+      "expect": [
+        "2611.07323"
+      ]
+    },
+    {
+      "kind": "author",
+      "query": "Lalchand Pandia rethinking",
+      "param": {
+        "author": "Lalchand Pandia"
+      },
+      "expect": [
+        "2611.07323"
+      ]
+    },
+    {
+      "kind": "title",
+      "query": "The role of injected noise in diffusion model generalization",
+      "param": {
+        "q": "The role of injected noise in diffusion model generalization"
+      },
+      "expect": [
+        "2611.03764"
+      ]
+    },
+    {
+      "kind": "phrase",
+      "query": "it plays an important role in making or",
+      "param": {
+        "q": "it plays an important role in making or"
+      },
+      "expect": [
+        "2611.03764"
+      ]
+    },
+    {
+      "kind": "author",
+      "query": "Vincent Emmerling role",
+      "param": {
+        "author": "Vincent Emmerling"
+      },
+      "expect": [
+        "2611.03764"
+      ]
+    },
+    {
+      "kind": "title",
+      "query": "Solver-Admitted Metamorphic Testing of Learned Network Optimization Surrogates",
+      "param": {
+        "q": "Solver-Admitted Metamorphic Testing of Learned Network Optimization Surrogates"
+      },
+      "expect": [
+        "2611.08837"
+      ]
+    },
+    {
+      "kind": "phrase",
+      "query": "We study alternating-current optimal power flow (AC-OPF), the",
+      "param": {
+        "q": "We study alternating-current optimal power flow (AC-OPF), the"
+      },
+      "expect": [
+        "2611.08837"
+      ]
+    },
+    {
+      "kind": "author",
+      "query": "Vineet Jagadeesan Nair solver-admitted",
+      "param": {
+        "author": "Vineet Jagadeesan Nair"
+      },
+      "expect": [
+        "2611.08837"
+      ]
+    },
+    {
+      "kind": "title",
+      "query": "Recursive Reasoning Exploration: Mathematical Research through Evolving Reasoning Graphs : case study: An Exact Certificate-Degree Theorem for Two-Term Tensor Decompositions : Phase III of the Math Instruments Program",
+      "param": {
+        "q": "Recursive Reasoning Exploration: Mathematical Research through Evolving Reasoning Graphs : case study: An Exact Certificate-Degree Theorem for Two-Term Tensor Decompositions : Phase III of the Math Instruments Program"
+      },
+      "expect": [
+        "2611.02186"
+      ]
+    },
+    {
+      "kind": "phrase",
+      "query": "premises to research targets, attempted arguments, counterexamples, checks",
+      "param": {
+        "q": "premises to research targets, attempted arguments, counterexamples, checks"
+      },
+      "expect": [
+        "2611.02186"
+      ]
+    },
+    {
+      "kind": "author",
+      "query": "Ying Xie recursive",
+      "param": {
+        "author": "Ying Xie"
+      },
+      "expect": [
+        "2611.02186"
+      ]
+    },
+    {
+      "kind": "title",
+      "query": "Slower Generalization, Faster Memorization: A Sweet Spot in Algorithmic Learning",
+      "param": {
+        "q": "Slower Generalization, Faster Memorization: A Sweet Spot in Algorithmic Learning"
+      },
+      "expect": [
+        "2605.14659"
+      ]
+    },
+    {
+      "kind": "phrase",
+      "query": "matrices before memorizing their random suffixes, suggesting that",
+      "param": {
+        "q": "matrices before memorizing their random suffixes, suggesting that"
+      },
+      "expect": [
+        "2605.14659"
+      ]
+    },
+    {
+      "kind": "author",
+      "query": "Shin So slower",
+      "param": {
+        "author": "Shin So"
+      },
+      "expect": [
+        "2605.14659"
+      ]
+    },
+    {
+      "kind": "title",
+      "query": "Logarithmic Regret for Alternating Mirror Descent",
+      "param": {
+        "q": "Logarithmic Regret for Alternating Mirror Descent"
+      },
+      "expect": [
+        "2611.05243"
+      ]
+    },
+    {
+      "kind": "phrase",
+      "query": "the question of whether AltOMD achieves near-constant regret",
+      "param": {
+        "q": "the question of whether AltOMD achieves near-constant regret"
+      },
+      "expect": [
+        "2611.05243"
+      ]
+    },
+    {
+      "kind": "author",
+      "query": "Tianlong Nan logarithmic",
+      "param": {
+        "author": "Tianlong Nan"
+      },
+      "expect": [
+        "2611.05243"
+      ]
+    },
+    {
+      "kind": "title",
+      "query": "Dependable Agents Need Hard and Fuzzy Rules",
+      "param": {
+        "q": "Dependable Agents Need Hard and Fuzzy Rules"
+      },
+      "expect": [
+        "2611.01043"
+      ]
+    },
+    {
+      "kind": "phrase",
+      "query": "exactly. Learned fuzzy rules cover the judgment that",
+      "param": {
+        "q": "exactly. Learned fuzzy rules cover the judgment that"
+      },
+      "expect": [
+        "2611.01043"
+      ]
+    },
+    {
+      "kind": "author",
+      "query": "Frederick Roth dependable",
+      "param": {
+        "author": "Frederick Roth"
+      },
+      "expect": [
+        "2611.01043"
+      ]
+    },
+    {
+      "kind": "title",
+      "query": "What Survives Distillation? A Mechanistic Interpretability Study of GPT-2 and DistilGPT-2",
+      "param": {
+        "q": "What Survives Distillation? A Mechanistic Interpretability Study of GPT-2 and DistilGPT-2"
+      },
+      "expect": [
+        "2610.37157"
+      ]
+    },
+    {
+      "kind": "phrase",
+      "query": "across two canonical circuits: the Indirect Object Identification",
+      "param": {
+        "q": "across two canonical circuits: the Indirect Object Identification"
+      },
+      "expect": [
+        "2610.37157"
+      ]
+    },
+    {
+      "kind": "author",
+      "query": "Nabeelah Faumi what",
+      "param": {
+        "author": "Nabeelah Faumi"
+      },
+      "expect": [
+        "2610.37157"
+      ]
+    },
+    {
+      "kind": "title",
+      "query": "The Complexity of ReLU Network Synthesis from a Parameter Multiset",
+      "param": {
+        "q": "The Complexity of ReLU Network Synthesis from a Parameter Multiset"
+      },
+      "expect": [
+        "2611.04074"
+      ]
+    },
+    {
+      "kind": "phrase",
+      "query": "and biases so that it meets the target",
+      "param": {
+        "q": "and biases so that it meets the target"
+      },
+      "expect": [
+        "2611.04074"
+      ]
+    },
+    {
+      "kind": "author",
+      "query": "Dimitrios Myrisiotis complexity",
+      "param": {
+        "author": "Dimitrios Myrisiotis"
+      },
+      "expect": [
+        "2611.04074"
+      ]
+    }
+  ]
+}
