@@ -19,11 +19,12 @@ generation is the next milestone.
 
 | | |
 |---|---|
-| papers | **8,274** |
-| embeddings | **8,274** — one vector per paper, `(8274, 8274)` |
-| silver | 8,274 rows across **60 months**, 0 quarantined |
+| papers | **8,937** |
+| embeddings | **8,937** — one vector per paper, `(8937, 8937)` |
+| silver | 8,937 rows across **60 months**, 0 quarantined |
 | schedule | one Airflow DAG, `@daily` at 00:00 UTC, `catchup=False` |
 | incremental embed | **4,068** embedded, **4,206** skipped, **0** failed, 300 s |
+| unattended embed | **690** embedded (663 new, 27 changed), 0 failed, **52.7 s**, triggered by cron |
 | full rebuild | 4,271 papers, 6,512,326 chars, 245.3 s |
 | no-op rerun | 4,271 skipped, **1.4 s** — 99.4% saved |
 | keyword latency | **1.02 ms** mean, 2.28 ms max (warm) |
@@ -44,7 +45,7 @@ Check that the API is actually talking to the database, not merely running:
 curl -sS localhost:8090/health | jq
 ```
 
-Expect `ok: true`, `db: "up"`, `n_vectors: 8274`. This endpoint probes Postgres and
+Expect `ok: true`, `db: "up"`, `n_vectors: 8937`. This endpoint probes Postgres and
 returns **503 with a reason** when a check fails, because a container can be `Up` with a
 dead connection behind it.
 

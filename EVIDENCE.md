@@ -27,7 +27,7 @@ time. The fingerprint is over entries only.
 
 | claim | value | how | status |
 |---|---|---|---|
-| Papers | **8,274** (was 4,271 before the 6 Nov scheduled run) | `select count(*) from paper_meta` | **Verified** |
+| Papers | **8,937** (4,271 → 8,274 → 8,937 across three scheduled passes) | `select count(*) from paper_meta` | **Verified** |
 | Entries processed | 13,000, overlapping | Day 2 run | Reported |
 | Overlap duplicates | 8,729 (67%) → 3.04× per paper | Day 2 run | Reported |
 | Monthly Parquet files | 50 | Day 2 run | Reported |
@@ -107,23 +107,31 @@ chain was observed.
 
 | claim | value | source | status |
 |---|---|---|---|
-| Schedule | 06:00 daily, `is_paused False`, one DAG `arxiv_bronze_ingest` | `airflow dags list` | **Verified** |
+| Schedule | `@daily` (**00:00 UTC**), `start_date` 2026-10-01, `catchup=False`, `max_active_runs=1`, two retries with exponential backoff, `is_paused False` | `dags next-execution` + DAG source | **Verified** |
 | DAG shape | **6 tasks**, ends at `check_meta`; embeddings run as `make embed` in the image that owns the model | `dags/arxiv_bronze_ingest.py` | **Verified** |
 | Scheduled ingest | **21 pages, 4,200 entries, 4,075 in window, 10,418,609 bytes**, `stop_reason reached_window_start`, `behind_schedule False` | DAG run log | **Verified** |
 | Silver build | 17,200 entries → **4,003 new** papers, 196 revised, **65 text-changed**, **0 quarantined**, 60 months | `build_silver` | **Verified** |
 | Load into Postgres | **8,274 rows written**, 60 months, 8,274 read | `load_meta` → `n_written 8274` | **Verified** |
 | Gate | `papers 8274, null_authors 0, empty_authors 0, missing_ci 0, missing_tsv 0`, `authors_fp c2337d98dce34d6cbf4ae82dc4e7629d` | `run_check_meta`, then `tasks test … check_meta` | **Verified** |
-| Gate at 06:00 | ran in isolation with no upstream XCom and still passed the four integrity counts | same task test | **Verified** |
+| Gate in isolation | ran with no upstream XCom and still passed the four integrity counts | `tasks test` | **Verified** |
 | DB driver | one `_connect` tries psycopg 3, falls back to psycopg2, because the Airflow image ships only the latter | `src/docpulse/silver/load.py` | **Verified** |
+| What was already automated | `scheduled__2026-10-29`, `10-30`, `10-31` all **success** — but the chain ended at `verify_silver`, one layer short of the database. This is the gap Day 7 closed, not a claim that scheduling was new | `dags list-runs` | **Verified** |
 | Incremental embedding on new data | `n_new 4,003, n_changed 65, n_unchanged 4,206, n_to_embed 4,068, n_embedded 4,068, n_failed 0`, 6,212,694 chars, **300.22 s**, `embed-83d9b303f78c` | `embedding_runs` | **Verified** |
 | Two counters agree | `n_changed 65` equals silver's `n_text_changed_papers 65` — hash-based skipping, measured against a real announcement rather than a no-op rerun | `embedding_runs` vs `build_silver` | **Verified** |
 | One vector per paper | `(8274, 8274)` from `paper_meta` and `paper_embeddings` | `select (…), (…)` | **Verified** |
 | Fingerprint moved, correctly | `b1333bbebda572f7…` at 4,271 rows → `c2337d98dce34d6c…` at 8,274; it tracks corpus content, so growth **should** change it | `authors_fp` across loads | **Verified** |
+| Vectors without a human | cron runs `scripts/embed_new.sh` every 30 minutes; it compares `paper_meta` to `paper_embeddings` and exits in milliseconds when they are equal | `logs/embed_new.log` | **Verified** |
+| Unattended embed on new papers | `n_new 663, n_changed 27, n_to_embed 690, n_embedded 690, n_skipped 8,247`, 1,030,288 chars, **52.653 s**, run `embed-442c2aaf6a5a`, `n_failed 0` | `embedding_runs` | **Verified** |
+| Timer is idempotent | second invocation printed `papers=8937 vectors=8937` then `nothing new: every paper already has a vector` | `scripts/embed_new.sh` | **Verified** |
+| Loop closed | `papers=8937 vectors=8937` — the scheduled run added 663 papers, the timer vectorised them two minutes later, with no human action | count query | **Verified** |
 
-What is *not* automated, stated plainly: the DAG does not embed. `build_encoder()`
-refuses to run without `sentence-transformers` rather than write meaningless vectors,
-so the embedding step stays a deliberate `make embed` in the embedder image. The DAG
-guarantees every `paper_meta` row is present and gated; it does not guarantee a vector.
+Where embeddings run, and why not in the DAG: `build_encoder()` refuses to run
+without `sentence-transformers` rather than write meaningless vectors, and the Airflow
+image has no torch, so the step stays out of the DAG. It is automated anyway. A host
+cron entry runs `scripts/embed_new.sh` every 30 minutes, which compares `paper_meta`
+to `paper_embeddings`, exits in milliseconds when they match, and otherwise embeds in the
+image that owns the model. The DAG guarantees every `paper_meta` row is present and
+gated; the timer guarantees each one receives a vector.
 
 ---
 
