@@ -37,3 +37,66 @@ Golden set: 180 queries, k=10, base `http://localhost:8090`.
 | phrase | vector | premises to research targets, attempted arguments, counterex | 2611.02186 | 2610.39070, 2608.12571, 2611.02234 |
 | phrase | vector | across two canonical circuits: the Indirect Object Identific | 2610.37157 | 2609.09124, 2610.11460, 2603.03989 |
 | phrase | vector | and biases so that it meets the target | 2611.04074 | 2611.05662, 2611.07270, 2605.05003 |
+
+## How to read this
+
+The table above is the verbatim-vocabulary set: exact titles, eight consecutive words lifted
+from an abstract, and full first-author names. Full-text search cannot lose that set, so it is
+the floor, not the ceiling. The interesting question is what happens when a query shares
+*meaning* with a paper but not words — measured separately, in three tiers over the same ten
+papers:
+
+| tier | mode | n | hit@1 | recall@10 | MRR | mean ms |
+|---|---|---|---|---|---|---|
+| easy — title restated plainly | keyword | 10 | 0.30 | 0.600 | 0.420 | 126 |
+| easy — title restated plainly | vector | 10 | **0.70** | **0.900** | **0.783** | 51 |
+| med — core claim, no jargon | keyword | 10 | 0.40 | **0.500** | 0.450 | 153 |
+| med — core claim, no jargon | vector | 10 | 0.40 | 0.400 | 0.400 | 54 |
+| hard — oblique, no shared words | keyword | 10 | 0.10 | **0.300** | 0.124 | 126 |
+| hard — oblique, no shared words | vector | 10 | 0.10 | 0.200 | 0.111 | 51 |
+
+Same ten papers in every tier, so a gap between tiers is difficulty, not sampling luck.
+
+## What each mode is good for
+
+**Keyword — exact-match retrieval is solved.** Titles at MRR 1.000 in 4.5 ms; verbatim phrases
+at 0.983. Nothing here is worth improving.
+
+**Vector — semantic retrieval works, for answerable queries.** On plain-language descriptions
+it beats keyword by **30 points of recall@10** and **36 points of MRR**. That is what the
+latency buys. On abstract-level paraphrases it is a coin flip, and on riddles both modes
+collapse to 0.2–0.3.
+
+**Author — solved, with a contract that cost a round to discover.** A full first-author name
+returns that person's papers (recall@10 1.000, MRR 0.913, 3.3 ms). A bare surname returns
+other people entirely. `mode` accepts only `vector` and `keyword`; author mode is inferred
+from `author=`.
+
+## How the failures differ, which decides what to build
+
+Measured at `limit=500` of 8,937:
+
+| missed paper | MiniLM rank | bge-small rank | diagnosis |
+|---|---|---|---|
+| 2611.04805 | 83 | **42** | retrievable but outranked → a **ranking** problem |
+| 2611.05277 | absent | **absent** | not represented → a **representation** problem |
+
+A reranker over the candidate pool fixes the first and cannot touch the second; chunking the
+abstracts addresses the second at a measured cost of 40 minutes of re-embedding per attempt.
+
+## Two negatives worth keeping
+
+**The model swap moved one query.** Paraphrase recall@10 went 0.100 → 0.200. It did fix a real
+defect — MiniLM's 256-token window silently discarded ~33% of every 1,493-character abstract —
+and it halved a miss rank (83 → 42). But the headline barely moved, and that was predicted
+wrong before it was measured.
+
+**The query instruction changed nothing.** Applied to queries only, confirmed live in
+`/health`, with every keyword row byte-identical as the control. bge v1.5 exists partly to
+make that instruction unnecessary, and the measurement agreed with the release notes.
+
+## What this does not measure
+
+Relevance beyond one paper per query (precision is unmeasured), queries a real user would
+type, anything at all about generation, and any single tier to two decimal places: n=10 gives
+a 95% interval of ±0.18. The tier *pattern* is trustworthy; the individual numbers are not.

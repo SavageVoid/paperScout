@@ -35,7 +35,7 @@ from pathlib import Path
 LIST_KEYS = ("hits", "results", "rows", "items", "papers", "data")
 ID_KEYS = ("arxiv_id", "arxivId", "id", "paper_id")
 
-MODE_FOR_KIND = {"title": ("keyword", "vector"), "phrase": ("vector", "keyword"), "paraphrase": ("vector", "keyword"), "author": ("author",)}
+MODE_FOR_KIND = {"title": ("keyword", "vector"), "phrase": ("vector", "keyword"), "paraphrase": ("vector", "keyword"), "para_easy": ("vector", "keyword"), "para_med": ("vector", "keyword"), "para_hard": ("vector", "keyword"), "author": ("author",)}
 
 
 def build_url(base: str, item: dict, mode: str, k: int) -> str:

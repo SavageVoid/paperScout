@@ -124,6 +124,13 @@ chain was observed.
 | Unattended embed on new papers | `n_new 663, n_changed 27, n_to_embed 690, n_embedded 690, n_skipped 8,247`, 1,030,288 chars, **52.653 s**, run `embed-442c2aaf6a5a`, `n_failed 0` | `embedding_runs` | **Verified** |
 | Timer is idempotent | second invocation printed `papers=8937 vectors=8937` then `nothing new: every paper already has a vector` | `scripts/embed_new.sh` | **Verified** |
 | Loop closed | `papers=8937 vectors=8937` — the scheduled run added 663 papers, the timer vectorised them two minutes later, with no human action | count query | **Verified** |
+| Model swap | 8,937 rows re-embedded with `BAAI/bge-small-en-v1.5` @ `5c38ec7c…`; `n_dropped_for_model_change 8937`, new `model_fp 7e978d0139627414`, 13,610,365 chars, **2,433.652 s**, `n_failed 0`, run `embed-06b3da897fc7` | `embedding_runs` | **Verified** |
+| Model-change guard worked | build logged `model change accepted; old spaces dropped: ['2d51d6d165b7d00e']`; `/health` returned **503** until the re-embed finished, so no query ever mixed two vector spaces | `warnings[]`, `/health` | **Verified** |
+| Silent truncation, found | model window **256 tokens** while `EMBED_MAX_CHARS=4000` permits 4,000 chars; mean embedded text 1,493 chars, so **~33% of every abstract never entered its vector** and nothing warned | `max_seq_length` probe | **Verified** |
+| Author contract | `mode=author` → **422** `mode must be one of vector, keyword`; author mode is inferred from `author=`. Full first-author name: recall@10 **1.000**, MRR 0.913, 3.3 ms. Bare surname: other people | curl probes + `EVAL.md` | **Verified** |
+| Query instruction | bge instruction applied to queries only, live as `query_prefix` in `/health`; results unchanged within noise, keyword rows byte-identical (the control) | `EVAL_PARAPHRASE_INSTR.md` | **Verified** |
+| Semantic retrieval, measured | easy tier vector **0.900** recall@10 vs keyword 0.600 (MRR 0.800 vs 0.420); med 0.400 vs 0.500; hard 0.200 vs 0.300 — n=10 per tier, ±0.18 | `EVAL.md` | **Verified** |
+| Retrieval probes | one miss sits at **rank 42** of 8,937 (83 under MiniLM); another is **absent from the top 500 under both models** — rankable and unretrievable failures need different fixes | curl at limit=500 | **Verified** |
 
 Where embeddings run, and why not in the DAG: `build_encoder()` refuses to run
 without `sentence-transformers` rather than write meaningless vectors, and the Airflow
