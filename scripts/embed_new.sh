@@ -16,6 +16,7 @@
 #   1  the embedder failed, or reported rows it could not embed
 #   2  row counts could not be read (database or driver problem)
 #   3  the embedder ran but its counters could not be parsed
+#   4  the table holds vectors from a different model than the encoder
 #
 # Designed for cron: no aliases, no interactive prompts, one run at a time.
 
@@ -40,6 +41,20 @@ exec 9>"$LOCK" || exit 2
 if ! flock -n 9; then
     log "skip: another run holds $LOCK"
     exit 0
+fi
+
+# A model change is a decision for a human, not for cron. Row counts cannot see one:
+# during the MiniLM -> bge swap this script no-opped because 8,937 == 8,937 while every
+# vector was stale. /health knows, so ask it and stop rather than lie.
+HEALTH_URL=${DOCPULSE_HEALTH_URL:-http://localhost:8090/health}
+HEALTH_BODY=$(curl -sS --max-time 10 "$HEALTH_URL" 2>/dev/null || true)
+
+if [ -z "$HEALTH_BODY" ]; then
+    log "warning: $HEALTH_URL unreachable; falling back to row counts alone"
+elif printf '%s' "$HEALTH_BODY" | grep -Eq '"model_matches"[[:space:]]*:[[:space:]]*false'; then
+    log "error: stored vectors are from a different model than the encoder;"
+    log "error: this needs a deliberate re-embed (EMBED_ALLOW_MODEL_CHANGE=1), not a cron job"
+    exit 4
 fi
 
 COUNTS=$("${COMPOSE[@]}" run --rm --entrypoint python airflow-scheduler -c '
