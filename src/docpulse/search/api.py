@@ -10,6 +10,7 @@ hash encoder — no Postgres, no torch, no network.
 
 from __future__ import annotations
 
+import os
 import time
 from typing import Any
 
@@ -17,6 +18,12 @@ from .config import MAX_QUERY_CHARS, MIN_QUERY_CHARS, SearchSettings
 from .db import rows_to_results
 from .page import INDEX_HTML
 from .query import QueryEncoder, normalise_query
+
+# bge-style models are trained with an instruction on the *query* side only; documents
+# must never receive it. Read once at import so it cannot drift mid-process.
+QUERY_PREFIX = (os.environ.get("EMBED_QUERY_PREFIX") or "").strip()
+if QUERY_PREFIX and not QUERY_PREFIX.endswith(" "):
+    QUERY_PREFIX += " "
 
 DEFAULT_ABSTRACT_RESULTS = 3
 
@@ -81,6 +88,7 @@ def create_app(
         report = db.health(encoder.fingerprint)
         report["model"] = encoder.info() if hasattr(encoder, "info") else {}
         report["query_cache"] = query_encoder.stats()
+        report["query_prefix"] = QUERY_PREFIX or None
         report["uptime_s"] = round(time.time() - app.state.started_at, 1)
         ok = (
             report.get("db") == "up"
@@ -182,7 +190,7 @@ def create_app(
                 ) from exc
         else:
             try:
-                vector = query_encoder.encode(text)
+                vector = query_encoder.encode(f"{QUERY_PREFIX}{text}")
             except Exception as exc:  # pragma: no cover - model failure
                 raise HTTPException(
                     status_code=503, detail=f"encoder failed: {exc}"
