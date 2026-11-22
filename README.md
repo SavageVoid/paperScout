@@ -107,6 +107,8 @@ misses, and the two instrument faults found on the way: [`EVAL.md`](EVAL.md).
 | 8 consecutive words | vector | 0.617 | 0.455 | 35 ms |
 | full author name | author | 1.000 | **0.913** | 3.3 ms |
 
+<img src="docs/results_recall.svg" alt="Recall@10 by query difficulty: vector wins easy queries 0.90 against 0.60, keyword wins med 0.50 against 0.40 and hard 0.30 against 0.20" width="100%"/>
+
 **Queries that share meaning but not words** — 30 queries, same 10 papers in each tier:
 
 | difficulty | example | keyword | vector |
@@ -163,6 +165,22 @@ skipped, exactly 65 re-embedded because the text had genuinely changed.
   vectors behind it.
 - A 40-minute re-embed is a **decision**, not a cron job's business, so the build refuses unless
   `EMBED_ALLOW_MODEL_CHANGE=1` is passed deliberately.
+
+<details>
+<summary><b>What one unattended night looks like</b> — click to expand</summary>
+
+<br/>
+
+```
+00:00 UTC  scheduled__2026-11-09   success  (7 tasks, 98 s)
+00:30 UTC  papers=8937 vectors=8274 -> 663 embedded, 0 failed, 53 s
+01:00 UTC  papers=8937 vectors=8937 -> nothing new (1.4 s)
+```
+
+Nobody touched anything between the first line and the last. The gap in the middle
+(`8274` -> `8937`) is the timer closing the loop the DAG deliberately left open.
+
+</details>
 
 ## Known limits
 
@@ -234,12 +252,12 @@ tests/                unit and DB-backed tests
 contracts/            the YAML contract for silver
 docker/               airflow and embed images
 eval/                 golden question sets (JSON, corpus-derived)
-docs/                 architecture diagram
+docs/                 architecture diagram, results chart
 scripts/              entry points, the embed timer, evaluation, one-off migrations
 EVIDENCE.md           every claim, with the command behind it
 EVAL.md               retrieval quality per query type, including the failures
 PLAN_DAY9.md          costed plan for the two known retrieval fixes
-docs/journal/README_DAY7.md        the Day-7 narrative: how the pipeline became unattended
+README_DAY7.md        the Day-7 narrative: how the pipeline became unattended
 ```
 
 </details>
