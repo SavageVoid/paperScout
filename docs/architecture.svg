@@ -1,0 +1,94 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1060 470" width="1060" height="470" role="img" aria-label="DocPulse architecture: arXiv API into Bronze, Silver and Postgres under the Airflow DAG, a cron embedder producing vectors, and a FastAPI service serving three retrieval modes.">
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#57606a"/>
+    </marker>
+    <style>
+      .box      { fill: #ffffff; stroke-width: 1.5; }
+      .b-gray   { stroke: #57606a; fill: #f6f8fa; }
+      .b-amber  { stroke: #bf8700; fill: #fffdf3; }
+      .b-green  { stroke: #1a7f37; fill: #f0fdf4; }
+      .b-blue   { stroke: #0969da; fill: #f2f8ff; }
+      .b-purple { stroke: #8250df; fill: #faf5ff; }
+      .b-teal   { stroke: #0d7d84; fill: #f0fbfc; }
+      .t        { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif; font-size: 13px; font-weight: 600; fill: #1f2328; }
+      .s        { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 9.5px; fill: #57606a; }
+      .band     { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 10px; fill: #57606a; letter-spacing: .4px; }
+      .flow     { stroke: #57606a; stroke-width: 1.5; fill: none; marker-end: url(#arrow); }
+      .dash     { stroke: #afb8c1; stroke-width: 1.2; stroke-dasharray: 5 4; fill: none; }
+      .note     { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif; font-size: 9.5px; fill: #6e7781; }
+    </style>
+  </defs>
+
+  <rect x="0" y="0" width="1060" height="470" fill="#ffffff"/>
+
+  <!-- ===================== AIRFLOW BAND ===================== -->
+  <rect class="dash" x="196" y="26" width="859" height="126" rx="10"/>
+  <text class="band" x="212" y="46">AIRFLOW DAG  ·  arxiv_bronze_ingest  ·  7 TASKS  ·  @daily 00:00 UTC  ·  catchup=False</text>
+
+  <!-- source -->
+  <rect class="box b-gray" x="28" y="54" width="150" height="66" rx="8"/>
+  <text class="t" x="42" y="82">arXiv API</text>
+  <text class="s" x="42" y="102">Atom XML · 3.1 s gap</text>
+
+  <!-- bronze -->
+  <rect class="box b-amber" x="214" y="54" width="196" height="66" rx="8"/>
+  <text class="t" x="228" y="82">Bronze</text>
+  <text class="s" x="228" y="102">raw XML + manifest</text>
+
+  <!-- silver -->
+  <rect class="box b-green" x="446" y="54" width="184" height="66" rx="8"/>
+  <text class="t" x="460" y="82">Silver</text>
+  <text class="s" x="460" y="102">Parquet · text_hash</text>
+
+  <!-- postgres -->
+  <rect class="box b-blue" x="666" y="54" width="186" height="66" rx="8"/>
+  <text class="t" x="680" y="82">Postgres</text>
+  <text class="s" x="680" y="102">paper_meta · 8,937</text>
+
+  <!-- gate -->
+  <rect class="box b-amber" x="880" y="54" width="160" height="66" rx="8"/>
+  <text class="t" x="894" y="82">check_meta</text>
+  <text class="s" x="894" y="102">integrity gate</text>
+
+  <!-- top arrows -->
+  <path class="flow" d="M 178 87 L 210 87"/>
+  <path class="flow" d="M 410 87 L 442 87"/>
+  <path class="flow" d="M 630 87 L 662 87"/>
+  <path class="flow" d="M 852 87 L 876 87"/>
+
+  <!-- ===================== CRON BAND ===================== -->
+  <rect class="dash" x="196" y="186" width="674" height="118" rx="10"/>
+  <text class="band" x="212" y="206">HOST CRON  ·  every 30 min  ·  no-ops in 1.4 s when nothing is new</text>
+
+  <rect class="box b-gray" x="214" y="220" width="196" height="66" rx="8"/>
+  <text class="t" x="228" y="248">embed timer</text>
+  <text class="s" x="228" y="268">counts paper_meta vs vectors</text>
+
+  <rect class="box b-purple" x="446" y="220" width="184" height="66" rx="8"/>
+  <text class="t" x="460" y="248">bge-small-en-v1.5</text>
+  <text class="s" x="460" y="268">384-d · 512-token</text>
+
+  <rect class="box b-blue" x="666" y="220" width="186" height="66" rx="8"/>
+  <text class="t" x="680" y="248">paper_embeddings</text>
+  <text class="s" x="680" y="268">pgvector · 8,937</text>
+
+  <path class="flow" d="M 410 253 L 442 253"/>
+  <path class="flow" d="M 630 253 L 662 253"/>
+
+  <!-- paper_meta feeds the timer -->
+  <path class="flow" d="M 700 120 L 700 178 L 190 178 L 190 253 L 210 253"/>
+  <text class="note" x="210" y="172">reads rows without vectors; stops on a model mismatch (exit 4)</text>
+
+  <!-- ===================== API ===================== -->
+  <rect class="box b-teal" x="430" y="346" width="320" height="80" rx="8"/>
+  <text class="t" x="444" y="374">FastAPI  ·  :8090</text>
+  <text class="s" x="444" y="394">/search  · /health  · /docs</text>
+  <text class="s" x="444" y="410">vector  ·  keyword  ·  author</text>
+
+  <path class="flow" d="M 759 286 L 759 320 L 590 320 L 590 342"/>
+  <text class="note" x="424" y="314">ANN / exact search, ~52 ms warm</text>
+
+  <!-- footer metrics -->
+  <text class="note" x="28" y="452">8,937 papers  ·  8,937 vectors  ·  60 months  ·  0 quarantined  ·  426 tests  ·  every number reproducible from EVIDENCE.md</text>
+</svg>
