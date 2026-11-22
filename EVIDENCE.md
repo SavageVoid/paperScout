@@ -58,7 +58,7 @@ identical). That is the intended trade-off, not an oversight.
 
 | claim | value | source | status |
 |---|---|---|---|
-| Keyword probe | strict answered **10 of 12**, sizes `[1,1,2,10,10,10,10,10,10,10]`, ≤8 rows in 3/10 | `make -f day5.mk keyword-probe` | **Verified** |
+| Keyword probe | strict answered **10 of 12**, sizes `[1,1,2,10,10,10,10,10,10,10]`, ≤8 rows in 3/10 | `make -f make/day5.mk keyword-probe` | **Verified** |
 | Keyword latency | **1.02 ms mean, 2.28 ms max** (warm container) | same probe | **Verified** |
 | Index use | Bitmap Index Scan on `paper_meta_fts_idx`, seqscan forced on and off | `EXPLAIN` | **Verified** |
 | Author corpus | 23,445 name entries, 19,854 distinct, mean 5.49/paper, median 4, max **559** | `day6_authors_probe.py` | **Verified** |
@@ -128,7 +128,7 @@ chain was observed.
 | Model-change guard worked | build logged `model change accepted; old spaces dropped: ['2d51d6d165b7d00e']`; `/health` returned **503** until the re-embed finished, so no query ever mixed two vector spaces | `warnings[]`, `/health` | **Verified** |
 | Silent truncation, found | model window **256 tokens** while `EMBED_MAX_CHARS=4000` permits 4,000 chars; mean embedded text 1,493 chars, so **~33% of every abstract never entered its vector** and nothing warned | `max_seq_length` probe | **Verified** |
 | Author contract | `mode=author` → **422** `mode must be one of vector, keyword`; author mode is inferred from `author=`. Full first-author name: recall@10 **1.000**, MRR 0.913, 3.3 ms. Bare surname: other people | curl probes + `EVAL.md` | **Verified** |
-| Query instruction | bge instruction applied to queries only, live as `query_prefix` in `/health`; results unchanged within noise, keyword rows byte-identical (the control) | `EVAL_PARAPHRASE_INSTR.md` | **Verified** |
+| Query instruction | bge instruction applied to queries only, live as `query_prefix` in `/health`; results unchanged within noise, keyword rows byte-identical (the control) | `docs/eval/EVAL_PARAPHRASE_INSTR.md` | **Verified** |
 | Semantic retrieval, measured | easy tier vector **0.900** recall@10 vs keyword 0.600 (MRR 0.800 vs 0.420); med 0.400 vs 0.500; hard 0.200 vs 0.300 — n=10 per tier, ±0.18 | `EVAL.md` | **Verified** |
 | Retrieval probes | one miss sits at **rank 42** of 8,937 (83 under MiniLM); another is **absent from the top 500 under both models** — rankable and unretrievable failures need different fixes | curl at limit=500 | **Verified** |
 
@@ -162,7 +162,7 @@ gated; the timer guarantees each one receives a vector.
 
 ```bash
 PYTHONPATH=src python3 -m pytest -q 2>&1 | tail -2
-make -f day5.mk keyword-probe
+make -f make/day5.mk keyword-probe
 curl -sS 'localhost:8090/search?author=Yann+LeCun' | jq '{mode, n: .n_returned, author}'
 curl -sS -o /dev/null -w 'openapi=%{http_code} docs=%{http_code}\n' localhost:8090/openapi.json localhost:8090/docs
 dc exec -T postgres psql -U docpulse -d docpulse_embed -c "select n_embedded, n_skipped, seconds from embedding_runs order by started_at desc limit 2"

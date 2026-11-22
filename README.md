@@ -239,7 +239,7 @@ scripts/              entry points, the embed timer, evaluation, one-off migrati
 EVIDENCE.md           every claim, with the command behind it
 EVAL.md               retrieval quality per query type, including the failures
 PLAN_DAY9.md          costed plan for the two known retrieval fixes
-README_DAY7.md        the Day-7 narrative: how the pipeline became unattended
+docs/journal/README_DAY7.md        the Day-7 narrative: how the pipeline became unattended
 ```
 
 </details>
